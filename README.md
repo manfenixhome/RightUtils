@@ -26,7 +26,7 @@ public class DBUtils extends RightDBUtils {
 	}
 }
 
-2) added and init static variable to our Application class:<br>
+2) create and init static variable to our Application class:<br>
 public class ExampleApplication extends Application {
 
 	public static DBUtils dbUtils;
