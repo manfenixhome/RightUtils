@@ -1,4 +1,19 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'signing'
+version = "1.0.0-SNAPSHOT"
+group = "com.rightutils"
+
+configurations {
+	archives {
+		extendsFrom configurations.default
+	}
+}
+
+signing {
+	required { has("release") && gradle.taskGraph.hasTask("uploadArchives") }
+	sign configurations.archives
+}
 
 android {
 	compileSdkVersion 19
@@ -22,4 +37,45 @@ android {
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	compile 'com.android.support:appcompat-v7:19.+'
+}
+
+uploadArchives {
+	configuration = configurations.archives
+	repositories.mavenDeployer {
+		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+		repository(url: sonatypeRepo) {
+			authentication(userName: sonatypeUsername,
+					password: sonatypePassword)
+		}
+
+		pom.project {
+			name 'RightUtils'
+			packaging 'aar'
+			description 'Utils for android development'
+			url 'https://github.com/manfenixhome/RightUtils'
+
+			scm {
+				url 'scm:git@github.com:manfenixhome/RightUtils.git'
+				connection 'scm:git@github.com:manfenixhome/RightUtils.git'
+				developerConnection 'scm:git@github.com:manfenixhome/RightUtils.git'
+			}
+
+			licenses {
+				license {
+					name 'The Apache Software License, Version 2.0'
+					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					distribution 'repo'
+				}
+			}
+
+			developers {
+				developer {
+					id 'ama'
+					name 'Anton Maniskevich'
+					email 'fenixhomepro@gmail.com'
+				}
+			}
+		}
+	}
 }

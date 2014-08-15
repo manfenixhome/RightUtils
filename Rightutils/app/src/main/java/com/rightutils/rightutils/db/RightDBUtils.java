@@ -6,9 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.rightutils.collections.Operation;
-import com.rightutils.collections.Predicate;
-import com.rightutils.collections.RightList;
+import com.rightutils.rightutils.collections.Operation;
+import com.rightutils.rightutils.collections.Predicate;
+import com.rightutils.rightutils.collections.RightList;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
