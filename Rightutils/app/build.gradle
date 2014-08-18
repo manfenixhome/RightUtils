@@ -53,12 +53,12 @@ uploadArchives {
 			name 'RightUtils'
 			packaging 'aar'
 			description 'Utils for android development'
-			url 'https://github.com/manfenixhome/RightUtils'
+			url repoUrl
 
 			scm {
-				url 'scm:git@github.com:manfenixhome/RightUtils.git'
-				connection 'scm:git@github.com:manfenixhome/RightUtils.git'
-				developerConnection 'scm:git@github.com:manfenixhome/RightUtils.git'
+				url gitUrl
+				connection gitUrl
+				developerConnection gitUrl
 			}
 
 			licenses {
