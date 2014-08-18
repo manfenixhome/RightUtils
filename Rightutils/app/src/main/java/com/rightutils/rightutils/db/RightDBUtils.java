@@ -12,6 +12,7 @@ import com.rightutils.rightutils.collections.RightList;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public abstract class RightDBUtils {
 
@@ -73,7 +74,7 @@ public abstract class RightDBUtils {
 		RightList.asRightList(element.getClass().getDeclaredFields()).filter(new Predicate<Field>() {
 			@Override
 			public boolean apply(Field value) {
-				return !value.isAnnotationPresent(ColumnIgnore.class);
+				return !value.isAnnotationPresent(ColumnIgnore.class) && !Modifier.isStatic(value.getModifiers());
 			}
 		}).foreach(new Operation<Field>() {
 			@Override
@@ -141,7 +142,9 @@ public abstract class RightDBUtils {
 			result = type.newInstance();
 			for (Field field : result.getClass().getDeclaredFields()) {
 				if (!field.isAnnotationPresent(ColumnIgnore.class)) {
-					fieldMapper(result, cursor, field, getColumnName(field));
+					if (!Modifier.isStatic(field.getModifiers())) {
+						fieldMapper(result, cursor, field, getColumnName(field));
+					}
 				}
 			}
 		} catch (Exception e) {
