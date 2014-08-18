@@ -1,15 +1,18 @@
 package com.rightutils.rightutils.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 /**
  * Created by Anton Maniskevich on 22.02.14.
  */
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public abstract class RightFragmentActivityNew extends Activity {
 	private int fragmentContainer;
 	private Fragment initFragment;
