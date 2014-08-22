@@ -39,7 +39,7 @@ public abstract class RightFragmentActivityNew extends Activity {
 
 		if (!fragmentPopped) {
 			FragmentTransaction ft = manager.beginTransaction();
-			ft.replace(fragmentContainer, fragment);
+			ft.replace(fragmentContainer, fragment, backStateName);
 			ft.addToBackStack(backStateName);
 			ft.commit();
 		}

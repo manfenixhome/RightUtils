@@ -4,8 +4,6 @@ import android.test.AndroidTestCase;
 
 import com.rightutils.rightutils.entities.Company;
 
-import java.util.List;
-
 /**
  * Created by Anton Maniskevich on 8/18/14.
  */

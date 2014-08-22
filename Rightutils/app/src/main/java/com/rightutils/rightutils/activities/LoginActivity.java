@@ -7,5 +7,5 @@ public interface LoginActivity {
 
 	void sendRequest();
 
-	void doStart();
+	<T> void doStart(T element);
 }
