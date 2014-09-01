@@ -91,4 +91,18 @@ public class RightList<T> extends ArrayList<T> {
 		}
 		return Arrays.toString(this.toArray((T[]) Array.newInstance(this.get(0).getClass(), 0)));
 	}
+
+	public T getLast() {
+		if (this.isEmpty()) {
+			return null;
+		}
+		return this.get(this.size()-1);
+	}
+
+	public T getFirst() {
+		if (this.isEmpty()) {
+			return null;
+		}
+		return this.get(0);
+	}
 }
