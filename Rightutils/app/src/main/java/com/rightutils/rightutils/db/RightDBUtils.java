@@ -37,6 +37,10 @@ public abstract class RightDBUtils {
 		db.delete(getTableName(type), where, null);
 	}
 
+	public <T> void deleteAll(Class<T> type) {
+		db.delete(getTableName(type), null, null);
+	}
+
 	public int countResultsByQuery(String query) {
 		Cursor cursor = db.rawQuery(query, null);
 		if (cursor.moveToFirst()) {
@@ -104,7 +108,6 @@ public abstract class RightDBUtils {
 		}
 	}
 
-	//TODO add real and other types
 	private <T> void valueMapper(ContentValues values, Field field, T element) {
 		field.setAccessible(true);
 		try {
@@ -116,6 +119,10 @@ public abstract class RightDBUtils {
 				values.put(getColumnName(field), (Integer) field.get(element));
 			} else if (field.getType().isAssignableFrom(boolean.class)) {
 				values.put(getColumnName(field), ((Boolean) field.get(element)) ? 1 : 0);
+			} else if (field.getType().isAssignableFrom(float.class)) {
+				values.put(getColumnName(field), (Float) field.get(element));
+			} else if (field.getType().isAssignableFrom(double.class)) {
+				values.put(getColumnName(field), (Double) field.get(element));
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -153,7 +160,6 @@ public abstract class RightDBUtils {
 		return result;
 	}
 
-	//TODO add real and other types
 	private <T> void fieldMapper(T result, Cursor cursor, Field field, String columnName) {
 		field.setAccessible(true);
 		try {
@@ -165,6 +171,10 @@ public abstract class RightDBUtils {
 				field.set(result, cursor.getInt(cursor.getColumnIndex(columnName)));
 			} else if (field.getType().isAssignableFrom(boolean.class)) {
 				field.set(result, cursor.getLong(cursor.getColumnIndex(columnName)) == 1);
+			} else if (field.getType().isAssignableFrom(float.class)) {
+				field.set(result, cursor.getFloat(cursor.getColumnIndex(columnName)));
+			} else if (field.getType().isAssignableFrom(double.class)) {
+				field.set(result, cursor.getDouble(cursor.getColumnIndex(columnName)));
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
