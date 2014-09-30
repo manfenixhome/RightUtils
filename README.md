@@ -2,13 +2,22 @@ RightUtils
 ==========
 It's a light android library for quick development android application.
 
-For gradle:
+For gradle last RELEASE VERSION:
 
 
 dependencies {
 	compile 'com.rightutils:app:1.0.0@aar'
 }
 
+For gradle last SNAPSHOT VERSION:
+
+repositories {
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+dependencies {
+	compile 'com.rightutils:app:1.1.3-SNAPSHOT@aar'
+}
 
 
 <b>SetUp database:</b>
