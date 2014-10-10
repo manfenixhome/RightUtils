@@ -7,6 +7,7 @@ import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
 import ch.boye.httpclientandroidlib.NameValuePair;
 import ch.boye.httpclientandroidlib.client.HttpClient;
+import ch.boye.httpclientandroidlib.client.config.RequestConfig;
 import ch.boye.httpclientandroidlib.client.entity.UrlEncodedFormEntity;
 import ch.boye.httpclientandroidlib.client.methods.HttpGet;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
@@ -52,6 +53,15 @@ public class RequestUtils {
 		connectionManager.setMaxTotal(3);
 		connectionManager.setDefaultMaxPerRoute(2);
 		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(get);
+	}
+
+	public static HttpResponse getHttpResponse(String url, RequestConfig config) throws Exception {
+		HttpGet get = getGet(url);
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).setConnectionManager(connectionManager).build();
 		return httpClient.execute(get);
 	}
 

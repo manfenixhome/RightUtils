@@ -17,6 +17,7 @@ public class RightUtils {
 		}
 		return false;
 	}
+	//TODO decodeFile
 
 	private RightUtils() {
 	}
