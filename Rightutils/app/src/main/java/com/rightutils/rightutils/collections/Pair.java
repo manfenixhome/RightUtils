@@ -11,6 +11,9 @@ public class Pair<F, S> implements Serializable {
 		return new Pair<F, S>(first, second);
 	}
 
+	public Pair() {
+	}
+
 	public Pair(F first, S second) {
 		super();
 		this.first = first;
