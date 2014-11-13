@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.rightutils.rightutils.collections.Operation;
@@ -41,6 +42,10 @@ public abstract class RightDBUtils {
 		db.delete(getTableName(type), null, null);
 	}
 
+	public <T> void delete(Class<T> type, String columnId, RightList<Long> ids) {
+		deleteWhere(type, String.format("%s IN (%s)", columnId, TextUtils.join(",", ids)));
+	}
+
 	public int countResultsByQuery(String query) {
 		Cursor cursor = db.rawQuery(query, null);
 		if (cursor.moveToFirst()) {
@@ -56,6 +61,11 @@ public abstract class RightDBUtils {
 
 	public <T> RightList<T> getAll(Class<T> type) {
 		String query = String.format("select * from %s", getTableName(type));
+		return queryListMapper(query, type);
+	}
+
+	public <T> RightList<T> getAllLimited(Class<T> type, long limit) {
+		String query = String.format("select * from %s limit %d", getTableName(type), limit);
 		return queryListMapper(query, type);
 	}
 
