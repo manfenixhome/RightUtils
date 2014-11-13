@@ -143,7 +143,7 @@ public abstract class RightDBUtils {
 		return results;
 	}
 
-	private <T> T cursorMapper(Cursor cursor, Class<T> type) {
+	public static <T> T cursorMapper(Cursor cursor, Class<T> type) {
 		T result = null;
 		try {
 			result = type.newInstance();
@@ -160,7 +160,7 @@ public abstract class RightDBUtils {
 		return result;
 	}
 
-	private <T> void fieldMapper(T result, Cursor cursor, Field field, String columnName) {
+	private static <T> void fieldMapper(T result, Cursor cursor, Field field, String columnName) {
 		field.setAccessible(true);
 		try {
 			if (field.getType().isAssignableFrom(String.class)) {
@@ -183,7 +183,7 @@ public abstract class RightDBUtils {
 		}
 	}
 
-	private <T> String getTableName(Class<T> type) {
+	private static <T> String getTableName(Class<T> type) {
 		String tableName = type.getSimpleName();
 		if (type.isAnnotationPresent(TableName.class)) {
 			tableName = type.getAnnotation(TableName.class).value();
@@ -191,7 +191,7 @@ public abstract class RightDBUtils {
 		return tableName;
 	}
 
-	private <T> String getColumnName(Field field) {
+	private static <T> String getColumnName(Field field) {
 		String columnName = field.getName();
 		if (field.isAnnotationPresent(ColumnName.class)) {
 			columnName = field.getAnnotation(ColumnName.class).value();
