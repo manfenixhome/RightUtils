@@ -14,6 +14,7 @@ import com.rightutils.rightutils.collections.RightList;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Date;
 
 public abstract class RightDBUtils {
 
@@ -133,6 +134,8 @@ public abstract class RightDBUtils {
 				values.put(getColumnName(field), (Float) field.get(element));
 			} else if (field.getType().isAssignableFrom(double.class)) {
 				values.put(getColumnName(field), (Double) field.get(element));
+			} else if (field.getType().isAssignableFrom(Date.class)) {
+				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -185,6 +188,8 @@ public abstract class RightDBUtils {
 				field.set(result, cursor.getFloat(cursor.getColumnIndex(columnName)));
 			} else if (field.getType().isAssignableFrom(double.class)) {
 				field.set(result, cursor.getDouble(cursor.getColumnIndex(columnName)));
+			} else if (field.getType().isAssignableFrom(Date.class)) {
+				field.set(result, new Date(cursor.getLong(cursor.getColumnIndex(columnName))));
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
