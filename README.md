@@ -57,8 +57,10 @@ public class ExampleApplication extends Application {
 <b>How to use:</b><br>
 ``` java
 //Supports fields type: all primitive types, String, Long, Integer, Boolean, Float, Double, Date
+//Use @TableName("table_name") annotation if name are different
 public class Company implements Serializable {
-	
+	//Use @ColumnName("_id") annotation if column name are different.
+	//Use @ColumnIgnore annotation if this field not saving in database
 	private long id;
 	private String name;
 
