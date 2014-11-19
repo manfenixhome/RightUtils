@@ -20,50 +20,6 @@ dependencies {
 	compile 'com.rightutils:app:1.2.1-SNAPSHOT@aar'
 }
 
-<h2>WIDGETS</h2>
-<b>Usage examples</b><br>
-Declare font attribute in root layout:
-``` xml
-xmlns:font="http://schemas.android.com/apk/res-auto"
-```
-After that, you can use:
-<i>TextView with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedTextView
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>EditText with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedEditText
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>Button with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedButton
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>RadioButton with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedRadioButton
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>CheckBox with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedCheckbox
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>NB - "fonts/AFBattersea.ttf" - path and name of font in assets folder. In this case it's mean (assets/fonts/AFBattersea.ttf)</i>
-
 <h2>ORM</h2>
 <b>SetUp database:</b>
 
@@ -149,5 +105,48 @@ deleteWhere(Company.class, String.format("id IN (%s)", TextUtils.join(",", ids))
 //or
 deleteWhere(Company.class, "id", ids)));
 ```
-	
 
+<h2>WIDGETS</h2>
+<b>Usage examples</b><br>
+Declare font attribute in root layout:
+``` xml
+xmlns:font="http://schemas.android.com/apk/res-auto"
+```
+After that, you can use:<br>
+<i>TextView with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedTextView
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>EditText with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedEditText
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>Button with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedButton
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>RadioButton with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedRadioButton
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>CheckBox with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedCheckbox
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>NB - "fonts/AFBattersea.ttf" - path and name of font in assets folder. In this case it's mean (assets/fonts/AFBattersea.ttf)</i>
+	
