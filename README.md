@@ -2,14 +2,15 @@ RightUtils
 ==========
 It's a light android library for quick development android application.
 
-For gradle last RELEASE VERSION:
+<h2>For gradle</h2>
+Last RELEASE VERSION:
 
 
 dependencies {
 	compile 'com.rightutils:app:1.2.1@aar'
 }
 
-For gradle last SNAPSHOT VERSION:
+Last SNAPSHOT VERSION:
 
 repositories {
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -52,6 +53,19 @@ public class ExampleApplication extends Application {
 <b><u>NB "example_db.sqlite" - name of existing database file in assets folder</u></b>
 
 3) finally we can use db:<br>
+<b><u>NB Supports fields type
+<ul>
+<li>all primitive types</li>
+<li>String</li>
+<li>Long</li>
+<li>Integer</li>
+<li>Boolean</li>
+<li>Float</li>
+<li>Double</li>
+<li>Date</li>
+</ul>
+</u></b>
+
 <b>Example usage</b><br>
 <code>
 public class Company implements Serializable {
@@ -77,8 +91,7 @@ public class Company implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-}
-</code>
+}</code>
 
 <b><i>Add company:<i></b><br>
 add(company);
