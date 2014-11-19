@@ -1,6 +1,6 @@
 RightUtils
 ==========
-It's a light android library for quick development android application.
+Android library for quick development android application.
 
 ## Quick Setup
 **Gradle dependency:**
