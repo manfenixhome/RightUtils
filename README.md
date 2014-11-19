@@ -2,28 +2,24 @@ RightUtils
 ==========
 It's a light android library for quick development android application.
 
-<h2>For gradle</h2>
-Last RELEASE VERSION:
-
-
-dependencies {
-	compile 'com.rightutils:app:1.2.1@aar'
-}
-
-Last SNAPSHOT VERSION:
-
-repositories {
-	maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-}
-
-dependencies {
-	compile 'com.rightutils:app:1.2.1-SNAPSHOT@aar'
-}
+## Quick Setup
+**Gradle dependency:**
+``` groovy
+compile 'com.rightutils:app:1.2.1@aar'
+```
+**Maven dependency:**
+``` xml
+<dependency>
+    <groupId>com.rightutils</groupId>
+    <artifactId>app</artifactId>
+    <version>1.2.1</version>
+</dependency>
+```
 
 <h2>ORM</h2>
-<b>SetUp database:</b>
+####SetUp database:
 
-1) create class:<br>
+#####1) create class:<br>
 ``` java
 public class DBUtils extends RightDBUtils {
 
@@ -37,7 +33,7 @@ public class DBUtils extends RightDBUtils {
 }
 ```
 
-2) create and init static variable to our Application class:<br>
+#####2) create and init static variable to our Application class:<br>
 
 ``` java
 public class ExampleApplication extends Application {
@@ -53,8 +49,7 @@ public class ExampleApplication extends Application {
 }
 ```
 
-3) finally we can use db:<br>
-<b>How to use:</b><br>
+####How to use:<br>
 ``` java
 //Supports fields type: all primitive types, String, Long, Integer, Boolean, Float, Double, Date
 //Use @TableName("table_name") annotation if name are different
