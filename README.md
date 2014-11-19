@@ -33,7 +33,7 @@ public class DBUtils extends RightDBUtils {
 }
 ```
 
-#####2) create and init static variable to our Application class:<br>
+#####2) create and init static variable to your Application class:<br>
 
 ``` java
 public class ExampleApplication extends Application {
@@ -53,7 +53,7 @@ public class ExampleApplication extends Application {
 ``` java
 //Supports fields type: all primitive types, String, Long, Integer, Boolean, Float, Double, Date
 //Use @TableName("table_name") annotation if name are different
-public class Company implements Serializable {
+public class Company {
 	//Use @ColumnName("_id") annotation if column name are different.
 	//Use @ColumnIgnore annotation if this field not saving in database
 	private long id;
