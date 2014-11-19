@@ -47,29 +47,18 @@ public class ExampleApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		//example_db.sqlite - name of existing database file in assets folder
 		dbUtils = DBUtils.newInstance(this, "example_db.sqlite", 1);
 	}
 }
 ```
-<b><u>NB "example_db.sqlite" - name of existing database file in assets folder</u></b>
 
 3) finally we can use db:<br>
-<b><u>NB Supports fields type
-<ul>
-<li>all primitive types</li>
-<li>String</li>
-<li>Long</li>
-<li>Integer</li>
-<li>Boolean</li>
-<li>Float</li>
-<li>Double</li>
-<li>Date</li>
-</ul>
-</u></b>
-
 <b>Example usage</b><br>
 ``` java
+//Supports fields type: all primitive types, String, Long, Integer, Boolean, Float, Double, Date
 public class Company implements Serializable {
+	
 	private long id;
 	private String name;
 
@@ -94,25 +83,27 @@ public class Company implements Serializable {
 ``` java
 add(company);
 ```
-
 <b><i>Add list of company:<i></b>
 ``` java
 addAll(companies);
 ```
-
 <b><i>Retrieve all companies from db:<i></b>
 ``` java
 RightList<Company> companies = getAll(Company.class);
 ```
-
+<b><i>Delete all companies from db:<i></b>
+``` java
+deleteAll(Company.class);
+```
 <b><i>Retrieve companies by ids:<i></b>
 ``` java
 RightList<Company> companies = getAllWhere(String.format("id IN (%s)", TextUtils.join(",", ids)), Company.class);
 ```
-
 <b><i>Delete companies by ids:<i></b>
 ``` java
 deleteWhere(Company.class, String.format("id IN (%s)", TextUtils.join(",", ids)));
+//or
+deleteWhere(Company.class, "id", ids)));
 ```
 	
 
