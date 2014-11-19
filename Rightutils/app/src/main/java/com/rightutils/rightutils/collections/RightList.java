@@ -49,6 +49,15 @@ public class RightList<T> extends ArrayList<T> {
 		return result;
 	}
 
+	public T findBy(Predicate<T> predicate) {
+		for (T element : this) {
+			if (predicate.apply(element)) {
+				return element;
+			}
+		}
+		return null;
+	}
+
 	public <E> RightList<Pair<E,RightList<T>>> groupBy(Mapper<E, T> mapper) {
 		Map<E, RightList<T>> map = new HashMap<E, RightList<T>>();
 		for (T element: this) {
