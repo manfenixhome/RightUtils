@@ -20,7 +20,51 @@ dependencies {
 	compile 'com.rightutils:app:1.2.1-SNAPSHOT@aar'
 }
 
-<h2>RightUtils ORM</h2>
+<h2>WIDGETS</h2>
+<b>Usage examples</b><br>
+Declare font attribute in root layout:
+``` xml
+xmlns:font="http://schemas.android.com/apk/res-auto"
+```
+After that, you can use:
+<i>TextView with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedTextView
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>EditText with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedEditText
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>Button with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedButton
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>RadioButton with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedRadioButton
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>CheckBox with custom fonts</i>
+``` xml
+<com.rightutils.rightutils.widgets.TypefacedCheckbox
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	font:typeface="fonts/AFBattersea.ttf"/>
+```
+<i>NB - "fonts/AFBattersea.ttf" - path and name of font in assets folder. In this case it's mean (assets/fonts/AFBattersea.ttf)</i>
+
+<h2>ORM</h2>
 <b>SetUp database:</b>
 
 1) create class:<br>
@@ -54,7 +98,7 @@ public class ExampleApplication extends Application {
 ```
 
 3) finally we can use db:<br>
-<b>Example usage</b><br>
+<b>How to use:</b><br>
 ``` java
 //Supports fields type: all primitive types, String, Long, Integer, Boolean, Float, Double, Date
 public class Company implements Serializable {
@@ -79,27 +123,27 @@ public class Company implements Serializable {
 }
 ```
 
-<b><i>Add company:<i></b>
+<i>Add company:<i>
 ``` java
 add(company);
 ```
-<b><i>Add list of company:<i></b>
+<i>Add list of company:<i>
 ``` java
 addAll(companies);
 ```
-<b><i>Retrieve all companies from db:<i></b>
+<i>Retrieve all companies from db:<i>
 ``` java
 RightList<Company> companies = getAll(Company.class);
 ```
-<b><i>Delete all companies from db:<i></b>
+<i>Delete all companies from db:<i>
 ``` java
 deleteAll(Company.class);
 ```
-<b><i>Retrieve companies by ids:<i></b>
+<i>Retrieve companies by ids:<i>
 ``` java
 RightList<Company> companies = getAllWhere(String.format("id IN (%s)", TextUtils.join(",", ids)), Company.class);
 ```
-<b><i>Delete companies by ids:<i></b>
+<i>Delete companies by ids:<i>
 ``` java
 deleteWhere(Company.class, String.format("id IN (%s)", TextUtils.join(",", ids)));
 //or
