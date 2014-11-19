@@ -6,7 +6,7 @@ For gradle last RELEASE VERSION:
 
 
 dependencies {
-	compile 'com.rightutils:app:1.0.0@aar'
+	compile 'com.rightutils:app:1.2.1@aar'
 }
 
 For gradle last SNAPSHOT VERSION:
@@ -16,14 +16,14 @@ repositories {
 }
 
 dependencies {
-	compile 'com.rightutils:app:1.1.3-SNAPSHOT@aar'
+	compile 'com.rightutils:app:1.2.1-SNAPSHOT@aar'
 }
 
-
+<h2>RightUtils ORM</h2>
 <b>SetUp database:</b>
 
 1) create class:<br>
-
+<code>
 public class DBUtils extends RightDBUtils {
 
 	private static final String TAG = DBUtils.class.getSimpleName();
@@ -34,8 +34,11 @@ public class DBUtils extends RightDBUtils {
 		return dbUtils;
 	}
 }
+</code>
 
 2) create and init static variable to our Application class:<br>
+
+<code>
 public class ExampleApplication extends Application {
 
 	public static DBUtils dbUtils;
@@ -45,14 +48,16 @@ public class ExampleApplication extends Application {
 		super.onCreate();
 		dbUtils = DBUtils.newInstance(this, "example_db.sqlite", 1);
 	}
-}
+}</code><br>
+<b><u>NB "example_db.sqlite" - name of existing database file in assets folder</u></b>
 
 3) finally we can use db:<br>
-Code examples:<br>
+<b>Example usage</b><br>
+<code>
+public class Company implements Serializable {
 
-public class Company implements Serializable {<br>
-	private long id;<br>
-	private String name;<br>
+	private long id;
+	private String name;
 
 	public Company() {
 	}
@@ -73,20 +78,21 @@ public class Company implements Serializable {<br>
 		this.name = name;
 	}
 }
+</code>
 
-Add company:<br>
+<b><i>Add company:<i></b><br>
 add(company);
 
-Add list of company:<br>
+<b><i>Add list of company:<i></b><br>
 addAll(companies);
 
-Retrieve all companies from db:<br>
+<b><i>Retrieve all companies from db:<i></b><br>
 RightList<Company> companies = getAll(Company.class);
 
-Retrieve companies by ids:<br>
+<b><i>Retrieve companies by ids:<i></b><br>
 RightList<Company> companies = getAllWhere(String.format("id IN (%s)", TextUtils.join(",", ids)), Company.class);
 
-Delete companies by ids:<br>
+<b><i>Delete companies by ids:<i></b><br>
 deleteWhere(Company.class, String.format("id IN (%s)", TextUtils.join(",", ids)));
 	
 
