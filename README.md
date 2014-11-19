@@ -24,7 +24,7 @@ dependencies {
 <b>SetUp database:</b>
 
 1) create class:<br>
-<code>
+``` java
 public class DBUtils extends RightDBUtils {
 
 	private static final String TAG = DBUtils.class.getSimpleName();
@@ -35,11 +35,11 @@ public class DBUtils extends RightDBUtils {
 		return dbUtils;
 	}
 }
-</code>
+```
 
 2) create and init static variable to our Application class:<br>
 
-<code>
+``` java
 public class ExampleApplication extends Application {
 
 	public static DBUtils dbUtils;
@@ -49,7 +49,8 @@ public class ExampleApplication extends Application {
 		super.onCreate();
 		dbUtils = DBUtils.newInstance(this, "example_db.sqlite", 1);
 	}
-}</code><br>
+}
+```
 <b><u>NB "example_db.sqlite" - name of existing database file in assets folder</u></b>
 
 3) finally we can use db:<br>
@@ -67,45 +68,51 @@ public class ExampleApplication extends Application {
 </u></b>
 
 <b>Example usage</b><br>
-<code>
+``` java
 public class Company implements Serializable {
-
 	private long id;
 	private String name;
 
 	public Company() {
 	}
-	
 	public long getId() {
 		return id;
 	}
-
 	public void setId(long id) {
 		this.id = id;
 	}
-
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-}</code>
+}
+```
 
-<b><i>Add company:<i></b><br>
+<b><i>Add company:<i></b>
+``` java
 add(company);
+```
 
-<b><i>Add list of company:<i></b><br>
+<b><i>Add list of company:<i></b>
+``` java
 addAll(companies);
+```
 
-<b><i>Retrieve all companies from db:<i></b><br>
+<b><i>Retrieve all companies from db:<i></b>
+``` java
 RightList<Company> companies = getAll(Company.class);
+```
 
-<b><i>Retrieve companies by ids:<i></b><br>
+<b><i>Retrieve companies by ids:<i></b>
+``` java
 RightList<Company> companies = getAllWhere(String.format("id IN (%s)", TextUtils.join(",", ids)), Company.class);
+```
 
-<b><i>Delete companies by ids:<i></b><br>
+<b><i>Delete companies by ids:<i></b>
+``` java
 deleteWhere(Company.class, String.format("id IN (%s)", TextUtils.join(",", ids)));
+```
 	
 
