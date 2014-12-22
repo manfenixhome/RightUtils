@@ -37,16 +37,7 @@ public class RequestUtils {
 				.build();
 	}
 
-	public static HttpResponse postHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
-		HttpPost post = getPost(url);
-		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		connectionManager.setMaxTotal(3);
-		connectionManager.setDefaultMaxPerRoute(2);
-		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
-		return httpClient.execute(post);
-	}
-
+	//GET METHODS
 	public static HttpResponse getHttpResponse(String url) throws Exception {
 		HttpGet get = getGet(url);
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
@@ -63,6 +54,36 @@ public class RequestUtils {
 		connectionManager.setDefaultMaxPerRoute(2);
 		HttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).setConnectionManager(connectionManager).build();
 		return httpClient.execute(get);
+	}
+
+	public static HttpResponse getHttpResponse(String url, Header[] headers) throws Exception {
+		HttpGet get = getGetHeaderToken(url, headers);
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(get);
+	}
+
+	public static HttpResponse getHttpResponse(String url, Header header) throws Exception {
+		HttpGet get = getGetHeaderToken(url, header);
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(get);
+	}
+
+
+	//POST methods
+	public static HttpResponse postHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
+		HttpPost post = getPost(url);
+		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(post);
 	}
 
 	public static HttpResponse postHttpResponse(String url, HttpEntity entity) throws IOException {
@@ -88,6 +109,7 @@ public class RequestUtils {
 		return httpClient.execute(post);
 	}
 
+	//inner methods
 	private static HttpPost getPostHeaderToken(String url, Header[] headers) {
 		HttpPost post = getPost(url);
 		post.setHeaders(headers);
@@ -102,6 +124,12 @@ public class RequestUtils {
 	private static HttpGet getGetHeaderToken(String url, Header[] headers) {
 		HttpGet get = getGet(url);
 		get.setHeaders(headers);
+		return get;
+	}
+
+	private static HttpGet getGetHeaderToken(String url, Header header) {
+		HttpGet get = getGet(url);
+		get.setHeader(header);
 		return get;
 	}
 

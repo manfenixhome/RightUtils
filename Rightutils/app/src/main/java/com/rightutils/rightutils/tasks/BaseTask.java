@@ -7,8 +7,20 @@ import android.widget.ProgressBar;
 
 public abstract class BaseTask extends AsyncTask<String, Integer, Boolean> {
 
+	public interface Callback{
+		public void callOk();
+		public void callFailed();
+	}
+
 	protected Context context;
 	protected View progressBar;
+	protected Callback callback;
+
+	public BaseTask setCallback(Callback callback){
+		this.callback = callback;
+		return this;
+	}
+
 
 	public BaseTask(Context context, View progressBar) {
 		this.context = context;
@@ -31,6 +43,12 @@ public abstract class BaseTask extends AsyncTask<String, Integer, Boolean> {
 			progressBar.setVisibility(ProgressBar.INVISIBLE);
 		}
 		super.onPostExecute(result);
+
+		if (result) {
+			callback.callOk();
+		} else {
+			callback.callFailed();
+		}
 	}
 
 	public void setProgressBar(View progressBar) {
