@@ -138,9 +138,14 @@ public abstract class RightDBUtils {
 				values.put(getColumnName(field), (Double) field.get(element));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
-			} else if (field.getType().isAssignableFrom(RightList.class)) {
-				//TODO for each element of list must be set foreignKey
-				add((RightList) field.get(element));
+			} else if (field.isAnnotationPresent(ColumnChild.class)) {
+				if (field.getType().isAssignableFrom(RightList.class)) {
+					//TODO for each element of list must be set foreignKey
+					add((RightList) field.get(element));
+				} else {
+					//TODO for each element must be set foreignKey
+					add(field.get(element));
+				}
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -195,10 +200,15 @@ public abstract class RightDBUtils {
 				field.set(result, cursor.getDouble(cursor.getColumnIndex(columnName)));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				field.set(result, new Date(cursor.getLong(cursor.getColumnIndex(columnName))));
-			} else if (field.getType().isAssignableFrom(RightList.class)) {
+			} else if (field.isAnnotationPresent(ColumnChild.class)) {
 				String foreignKey = getForeignKey(field);
 				long parentKeyValue = cursor.getLong(cursor.getColumnIndex(getParentKey(field)));
-				field.set(result, getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
+				if (field.getType().isAssignableFrom(RightList.class)) {
+					field.set(result, getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
+				} else {
+					RightList resultList = getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), field.getType());
+					field.set(result, resultList.isEmpty() ? null: resultList.getFirst());
+				}
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}

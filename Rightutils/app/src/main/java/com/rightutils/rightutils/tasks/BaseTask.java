@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 public abstract class BaseTask extends AsyncTask<String, Integer, Boolean> {
 
 	public interface Callback{
-		public void callOk();
+		public void callSuccessful();
 		public void callFailed();
 	}
 
@@ -45,7 +45,7 @@ public abstract class BaseTask extends AsyncTask<String, Integer, Boolean> {
 		super.onPostExecute(result);
 
 		if (result) {
-			callback.callOk();
+			callback.callSuccessful();
 		} else {
 			callback.callFailed();
 		}
