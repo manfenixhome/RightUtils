@@ -14,8 +14,8 @@ public abstract class CacheUtils {
 
 	private static final String TAG = CacheUtils.class.getSimpleName();
 
-	public interface CallBack {
-		public <T> void run(T cache);
+	public interface CallBack<T> {
+		public void run(T cache);
 	}
 
 	public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback, boolean saveCache) {
