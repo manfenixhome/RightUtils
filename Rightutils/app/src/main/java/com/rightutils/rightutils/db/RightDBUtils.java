@@ -10,10 +10,12 @@ import android.util.Log;
 import com.rightutils.rightutils.collections.Operation;
 import com.rightutils.rightutils.collections.Predicate;
 import com.rightutils.rightutils.collections.RightList;
+import com.rightutils.rightutils.utils.RightUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.Date;
 
 public abstract class RightDBUtils {
@@ -136,6 +138,9 @@ public abstract class RightDBUtils {
 				values.put(getColumnName(field), (Double) field.get(element));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
+			} else if (field.getType().isAssignableFrom(RightList.class)) {
+				//TODO for each element of list must be set foreignKey
+				add((RightList) field.get(element));
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -190,6 +195,10 @@ public abstract class RightDBUtils {
 				field.set(result, cursor.getDouble(cursor.getColumnIndex(columnName)));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				field.set(result, new Date(cursor.getLong(cursor.getColumnIndex(columnName))));
+			} else if (field.getType().isAssignableFrom(RightList.class)) {
+				String foreignKey = getForeignKey(field);
+				long parentKeyValue = cursor.getLong(cursor.getColumnIndex(getParentKey(field)));
+				field.set(result, getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -210,6 +219,22 @@ public abstract class RightDBUtils {
 		String columnName = field.getName();
 		if (field.isAnnotationPresent(ColumnName.class)) {
 			columnName = field.getAnnotation(ColumnName.class).value();
+		}
+		return columnName;
+	}
+
+	private <T> String getForeignKey(Field field) {
+		String columnName = field.getName();
+		if (field.isAnnotationPresent(ColumnChild.class)) {
+			columnName = field.getAnnotation(ColumnChild.class).foreignKey();
+		}
+		return columnName;
+	}
+
+	private <T> String getParentKey(Field field) {
+		String columnName = field.getName();
+		if (field.isAnnotationPresent(ColumnChild.class)) {
+			columnName = field.getAnnotation(ColumnChild.class).parentKey();
 		}
 		return columnName;
 	}

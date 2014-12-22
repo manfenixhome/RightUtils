@@ -1,4 +1,4 @@
-package com.rightutils.rightutils.entities;
+package com.rightutils.rightutils.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
