@@ -60,6 +60,7 @@ public class RightDBHandler extends SQLiteOpenHelper {
 	public SQLiteDatabase openDataBase(int openType) throws SQLException {
 		String myPath = path + name;
 		dataBase = SQLiteDatabase.openDatabase(myPath, null, openType);
+		dataBase.execSQL("PRAGMA foreign_keys=ON;");
 		return dataBase;
 	}
 

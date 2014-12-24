@@ -98,14 +98,37 @@ public abstract class RightDBUtils {
 			public void execute(Field value) {
 				if (value.isAnnotationPresent(ColumnAutoInc.class)) {
 					valueAutoIncMapper(values, value, element);
-				} else {
+				} else if (!value.isAnnotationPresent(ColumnChild.class)) {
 					valueMapper(values, value, element);
 				}
 			}
 		});
-		return db.insert(getTableName(element.getClass()), null, values);
+		long count = db.insert(getTableName(element.getClass()), null, values);
+		values.clear();
+		RightList.asRightList(element.getClass().getDeclaredFields()).filter(new Predicate<Field>() {
+			@Override
+			public boolean apply(Field value) {
+				return value.isAnnotationPresent(ColumnChild.class);
+			}
+		}).foreach(new Operation<Field>() {
+			@Override
+			public void execute(Field value) {
+				value.setAccessible(true);
+				try {
+					if (value.getType().isAssignableFrom(RightList.class)) {
+						//TODO for each element of list must be set foreignKey
+						add((RightList) value.get(element));
+					} else {
+						//TODO for each element must be set foreignKey
+						add(value.get(element));
+					}
+				} catch (IllegalAccessException e) {
+					Log.e(TAG, "valueMapper", e);
+				}
+			}
+		});
+		return count;
 	}
-
 
 	//INNER METHODS
 
@@ -120,6 +143,7 @@ public abstract class RightDBUtils {
 			Log.e(TAG, "valueAutoIncMapper", e);
 		}
 	}
+
 
 	private <T> void valueMapper(ContentValues values, Field field, T element) {
 		field.setAccessible(true);
@@ -138,14 +162,6 @@ public abstract class RightDBUtils {
 				values.put(getColumnName(field), (Double) field.get(element));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
-			} else if (field.isAnnotationPresent(ColumnChild.class)) {
-				if (field.getType().isAssignableFrom(RightList.class)) {
-					//TODO for each element of list must be set foreignKey
-					add((RightList) field.get(element));
-				} else {
-					//TODO for each element must be set foreignKey
-					add(field.get(element));
-				}
 			} else {
 				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
 			}
@@ -225,7 +241,7 @@ public abstract class RightDBUtils {
 		return tableName;
 	}
 
-	private <T> String getColumnName(Field field) {
+	private String getColumnName(Field field) {
 		String columnName = field.getName();
 		if (field.isAnnotationPresent(ColumnName.class)) {
 			columnName = field.getAnnotation(ColumnName.class).value();
@@ -233,7 +249,7 @@ public abstract class RightDBUtils {
 		return columnName;
 	}
 
-	private <T> String getForeignKey(Field field) {
+	private String getForeignKey(Field field) {
 		String columnName = field.getName();
 		if (field.isAnnotationPresent(ColumnChild.class)) {
 			columnName = field.getAnnotation(ColumnChild.class).foreignKey();
@@ -241,7 +257,7 @@ public abstract class RightDBUtils {
 		return columnName;
 	}
 
-	private <T> String getParentKey(Field field) {
+	private String getParentKey(Field field) {
 		String columnName = field.getName();
 		if (field.isAnnotationPresent(ColumnChild.class)) {
 			columnName = field.getAnnotation(ColumnChild.class).parentKey();
