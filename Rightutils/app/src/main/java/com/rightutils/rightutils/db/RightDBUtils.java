@@ -63,17 +63,17 @@ public abstract class RightDBUtils {
 	}
 
 	public <T> RightList<T> getAll(Class<T> type) {
-		String query = String.format("select * from %s", getTableName(type));
+		String query = String.format("select * from '%s'", getTableName(type));
 		return queryListMapper(query, type);
 	}
 
 	public <T> RightList<T> getAllLimited(Class<T> type, long limit) {
-		String query = String.format("select * from %s limit %d", getTableName(type), limit);
+		String query = String.format("select * from '%s' limit %d", getTableName(type), limit);
 		return queryListMapper(query, type);
 	}
 
 	public <T> RightList<T> getAllWhere(String where, Class<T> type) {
-		String query = String.format("select * from %s where %s", getTableName(type), where);
+		String query = String.format("select * from '%s' where %s", getTableName(type), where);
 		return queryListMapper(query, type);
 	}
 

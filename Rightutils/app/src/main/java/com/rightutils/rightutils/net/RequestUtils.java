@@ -86,6 +86,26 @@ public class RequestUtils {
 		return httpClient.execute(post);
 	}
 
+	public static HttpResponse postHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws IOException {
+		HttpPost post = getPostHeaderToken(url, header);
+		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(post);
+	}
+
+	public static HttpResponse postHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws IOException {
+		HttpPost post = getPostHeaderToken(url, headers);
+		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		connectionManager.setMaxTotal(3);
+		connectionManager.setDefaultMaxPerRoute(2);
+		HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+		return httpClient.execute(post);
+	}
+
 	public static HttpResponse postHttpResponse(String url, HttpEntity entity) throws IOException {
 		HttpPost post = getPost(url);
 		post.setEntity(entity);
@@ -110,14 +130,20 @@ public class RequestUtils {
 	}
 
 	//inner methods
+	private static HttpPost getPost(String url) {
+		HttpPost post = new HttpPost(url);
+		return post;
+	}
+
 	private static HttpPost getPostHeaderToken(String url, Header[] headers) {
-		HttpPost post = getPost(url);
+		HttpPost post = new HttpPost(url);
 		post.setHeaders(headers);
 		return post;
 	}
 
-	private static HttpPost getPost(String url) {
+	private static HttpPost getPostHeaderToken(String url, Header header) {
 		HttpPost post = new HttpPost(url);
+		post.setHeader(header);
 		return post;
 	}
 
