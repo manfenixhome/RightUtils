@@ -119,10 +119,16 @@ public abstract class RightDBUtils {
 						//TODO for each element of list must be set foreignKey
 						add((RightList) value.get(element));
 					} else {
-						//TODO for each element must be set foreignKey
-						add(value.get(element));
+						//TODO MUST BE TEST
+						Long parentIdValue = (Long) element.getClass().getDeclaredField(getParentKey(value)).get(element);
+						Object childObject = value.get(element);
+						Field foreignKeyField = childObject.getClass().getDeclaredField(getForeignKey(value));
+						foreignKeyField.setAccessible(true);
+						foreignKeyField.set(childObject, parentIdValue);
+						//--------
+						add(childObject);
 					}
-				} catch (IllegalAccessException e) {
+				} catch (Exception e) {
 					Log.e(TAG, "valueMapper", e);
 				}
 			}
