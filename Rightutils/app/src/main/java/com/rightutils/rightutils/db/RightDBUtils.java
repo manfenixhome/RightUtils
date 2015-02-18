@@ -63,17 +63,17 @@ public abstract class RightDBUtils {
 	}
 
 	public <T> RightList<T> getAll(Class<T> type) {
-		String query = String.format("select * from '%s'", getTableName(type));
+		String query = String.format("select * from `%s`", getTableName(type));
 		return queryListMapper(query, type);
 	}
 
 	public <T> RightList<T> getAllLimited(Class<T> type, long limit) {
-		String query = String.format("select * from '%s' limit %d", getTableName(type), limit);
+		String query = String.format("select * from `%s` limit %d", getTableName(type), limit);
 		return queryListMapper(query, type);
 	}
 
 	public <T> RightList<T> getAllWhere(String where, Class<T> type) {
-		String query = String.format("select * from '%s' where %s", getTableName(type), where);
+		String query = String.format("select * from `%s` where %s", getTableName(type), where);
 		return queryListMapper(query, type);
 	}
 
@@ -232,7 +232,7 @@ public abstract class RightDBUtils {
 					field.set(result, resultList.isEmpty() ? null: resultList.getFirst());
 				}
 			} else {
-				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
+				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", result.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
 		} catch (IllegalAccessException e) {
 			Log.e(TAG, "fieldMapper", e);

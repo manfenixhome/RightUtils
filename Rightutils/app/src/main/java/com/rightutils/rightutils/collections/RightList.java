@@ -1,5 +1,6 @@
 package com.rightutils.rightutils.collections;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class RightList<T> extends ArrayList<T> {
+public class RightList<T> extends ArrayList<T> implements Serializable {
 
 	private static final long serialVersionUID = 5093130242320904496L;
 

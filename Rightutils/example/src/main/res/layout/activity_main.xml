@@ -1,20 +1,38 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				xmlns:tools="http://schemas.android.com/tools"
-				xmlns:font="http://schemas.android.com/apk/res-auto"
+				xmlns:rightutils="http://schemas.android.com/apk/res-auto"
+				android:orientation="vertical"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				tools:context=".MainActivity">
 
 	<com.rightutils.rightutils.widgets.TypefacedTextView
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum attr"
+		android:layout_height="wrap_content"
+		rightutils:typeface="fonts/Roboto-Light.ttf"/>
+
+	<com.rightutils.rightutils.widgets.TypefacedTextView
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum style"
+		android:layout_height="wrap_content"
+		style="@style/TypefaceStyle"/>
+
+	<com.rightutils.rightutils.widgets.TypefacedTextView
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum theme"
+		android:layout_height="wrap_content"/>
+
+	<com.rightutils.rightutils.widgets.TypefacedButton
 		android:layout_marginTop="2dp"
-		android:id="@+id/txt_description"
+		android:id="@+id/btn_db_test"
 		android:textSize="14sp"
 		android:textColor="#252625"
-		android:text="Description"
+		android:text="DB test"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
 		android:lines="2"
-		font:typeface="fonts/Roboto-Light.ttf"/>
+		rightutils:typeface="fonts/Roboto-Light.ttf"/>
 
-</RelativeLayout>
+</LinearLayout>

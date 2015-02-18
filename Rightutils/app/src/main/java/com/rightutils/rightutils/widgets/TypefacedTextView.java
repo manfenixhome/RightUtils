@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.rightutils.rightutils.R;
+import com.rightutils.rightutils.collections.RightList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,12 @@ import java.util.Map;
  */
 public class TypefacedTextView extends TextView {
 
+	private static final String TAG = TypefacedTextView.class.getSimpleName();
 	private static Map<String, Typeface> fonts = new HashMap<String, Typeface>();
+
+	public TypefacedTextView(Context context) {
+		super(context, null);
+	}
 
 	public TypefacedTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -25,18 +32,29 @@ public class TypefacedTextView extends TextView {
 			return;
 		}
 
-		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefacedTextView);
-		String fontName = styledAttrs.getString(R.styleable.TypefacedTextView_typeface);
+		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefaceView);
+		String fontName = styledAttrs.getString(R.styleable.TypefaceView_typeface);
 		styledAttrs.recycle();
 
 		if (fontName != null) {
-			if (!fonts.containsKey(fontName)) {
-				Typeface typeface = Typeface.createFromAsset(context.getAssets(), fontName);
-				setTypeface(typeface);
-				fonts.put(fontName, typeface);
-			} else {
-				setTypeface(fonts.get(fontName));
+			setFont(context, fontName);
+		} else {
+			TypedArray styledAttrs2 = context.obtainStyledAttributes(attrs, R.styleable.TypefaceTheme);
+			CharSequence[] charSequences = styledAttrs2.getTextArray(R.styleable.TypefaceTheme_customTypefaceStyle);
+			styledAttrs.recycle();
+			if (charSequences != null && charSequences.length > 0) {
+				setFont(context, charSequences[0].toString());
 			}
+		}
+	}
+
+	private void setFont(Context context, String fontName) {
+		if (!fonts.containsKey(fontName)) {
+			Typeface typeface = Typeface.createFromAsset(context.getAssets(), fontName);
+			setTypeface(typeface);
+			fonts.put(fontName, typeface);
+		} else {
+			setTypeface(fonts.get(fontName));
 		}
 	}
 }

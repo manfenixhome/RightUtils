@@ -1,8 +1,7 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
+	<style name="TypefaceStyle">
+		<item name="typeface">fonts/Roboto-Light.ttf</item>
+	</style>
 
 </resources>

@@ -24,8 +24,8 @@ public class TypefacedEditText extends EditText {
 			return;
 		}
 
-		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefacedTextView);
-		String fontName = styledAttrs.getString(R.styleable.TypefacedTextView_typeface);
+		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefaceView);
+		String fontName = styledAttrs.getString(R.styleable.TypefaceView_typeface);
 		styledAttrs.recycle();
 
 		if (fontName != null) {

@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.rightutils.rightutils.R;
@@ -26,8 +27,9 @@ public class TypefacedAutoScrollTextView extends TextView {
 		if (isInEditMode()) {
 			return;
 		}
-		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefacedTextView);
-		String fontName = styledAttrs.getString(R.styleable.TypefacedTextView_typeface);
+
+		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TypefaceView);
+		String fontName = styledAttrs.getString(R.styleable.TypefaceView_typeface);
 		styledAttrs.recycle();
 
 		if (fontName != null) {
@@ -40,6 +42,8 @@ public class TypefacedAutoScrollTextView extends TextView {
 			}
 		}
 	}
+
+
 
 	@Override
 	protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {

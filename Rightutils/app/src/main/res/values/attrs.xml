@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<declare-styleable name="TypefacedTextView">
+	<declare-styleable name="TypefaceView">
 		<attr name="typeface" format="string" />
+	</declare-styleable>
+	<declare-styleable name="TypefaceTheme">
+		<attr name="customTypefaceStyle" format="reference"/>
 	</declare-styleable>
 </resources>
