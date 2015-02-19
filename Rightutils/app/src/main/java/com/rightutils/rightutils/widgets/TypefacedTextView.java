@@ -39,9 +39,9 @@ public class TypefacedTextView extends TextView {
 		if (fontName != null) {
 			setFont(context, fontName);
 		} else {
-			TypedArray styledAttrs2 = context.obtainStyledAttributes(attrs, R.styleable.TypefaceTheme);
-			CharSequence[] charSequences = styledAttrs2.getTextArray(R.styleable.TypefaceTheme_customTypefaceStyle);
-			styledAttrs.recycle();
+			TypedArray styledAttrsTheme = context.obtainStyledAttributes(attrs, R.styleable.TypefaceTheme);
+			CharSequence[] charSequences = styledAttrsTheme.getTextArray(R.styleable.TypefaceTheme_customTypefaceStyle);
+			styledAttrsTheme.recycle();
 			if (charSequences != null && charSequences.length > 0) {
 				setFont(context, charSequences[0].toString());
 			}

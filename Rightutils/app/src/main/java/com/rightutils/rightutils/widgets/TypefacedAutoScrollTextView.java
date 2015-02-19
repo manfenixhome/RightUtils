@@ -33,17 +33,26 @@ public class TypefacedAutoScrollTextView extends TextView {
 		styledAttrs.recycle();
 
 		if (fontName != null) {
-			if (!fonts.containsKey(fontName)) {
-				Typeface typeface = Typeface.createFromAsset(context.getAssets(), fontName);
-				setTypeface(typeface);
-				fonts.put(fontName, typeface);
-			} else {
-				setTypeface(fonts.get(fontName));
+			setFont(context, fontName);
+		} else {
+			TypedArray styledAttrsTheme = context.obtainStyledAttributes(attrs, R.styleable.TypefaceTheme);
+			CharSequence[] charSequences = styledAttrsTheme.getTextArray(R.styleable.TypefaceTheme_customTypefaceStyle);
+			styledAttrsTheme.recycle();
+			if (charSequences != null && charSequences.length > 0) {
+				setFont(context, charSequences[0].toString());
 			}
 		}
 	}
 
-
+	private void setFont(Context context, String fontName) {
+		if (!fonts.containsKey(fontName)) {
+			Typeface typeface = Typeface.createFromAsset(context.getAssets(), fontName);
+			setTypeface(typeface);
+			fonts.put(fontName, typeface);
+		} else {
+			setTypeface(fonts.get(fontName));
+		}
+	}
 
 	@Override
 	protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
