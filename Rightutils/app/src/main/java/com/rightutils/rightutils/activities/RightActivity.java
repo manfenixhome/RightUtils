@@ -13,7 +13,7 @@ import android.os.Bundle;
  * Created by Anton Maniskevich on 22.02.14.
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public abstract class RightFragmentActivityNew extends Activity {
+public abstract class RightActivity extends Activity {
 	private int fragmentContainer;
 	private Fragment initFragment;
 	protected Context context;

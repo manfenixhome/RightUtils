@@ -12,7 +12,12 @@ import com.rightutils.rightutils.collections.Predicate;
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.utils.RightUtils;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -21,6 +26,7 @@ import java.util.Date;
 public abstract class RightDBUtils {
 
 	private static final String TAG = RightDBUtils.class.getName();
+	private static final ObjectMapper MAPPER = new ObjectMapper().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	protected RightDBHandler dbHandler;
 	protected SQLiteDatabase db;
 
@@ -98,6 +104,8 @@ public abstract class RightDBUtils {
 			public void execute(Field value) {
 				if (value.isAnnotationPresent(ColumnAutoInc.class)) {
 					valueAutoIncMapper(values, value, element);
+				} if (value.isAnnotationPresent(ColumnDAO.class)) {
+					valueDAOMapper(values, value, element);
 				} else if (!value.isAnnotationPresent(ColumnChild.class)) {
 					valueMapper(values, value, element);
 				}
@@ -105,6 +113,11 @@ public abstract class RightDBUtils {
 		});
 		long count = db.insert(getTableName(element.getClass()), null, values);
 		values.clear();
+		addColumnChild(element);
+		return count;
+	}
+
+	private <T> void addColumnChild(final T element) {
 		RightList.asRightList(element.getClass().getDeclaredFields()).filter(new Predicate<Field>() {
 			@Override
 			public boolean apply(Field value) {
@@ -133,7 +146,6 @@ public abstract class RightDBUtils {
 				}
 			}
 		});
-		return count;
 	}
 
 	//INNER METHODS
@@ -147,6 +159,17 @@ public abstract class RightDBUtils {
 			}
 		}  catch (IllegalAccessException e) {
 			Log.e(TAG, "valueAutoIncMapper", e);
+		}
+	}
+
+	private <T> void valueDAOMapper(ContentValues values, Field field, T element) {
+		field.setAccessible(true);
+		try {
+			values.put(getColumnName(field), field.get(element) != null ? MAPPER.writeValueAsString(field.get(element)) : null);
+		} catch (IllegalAccessException e) {
+			Log.e(TAG, "valueDaoMapper", e);
+		} catch (Exception e) {
+			Log.e(TAG, "valueDaoMapper", e);
 		}
 	}
 
@@ -169,7 +192,7 @@ public abstract class RightDBUtils {
 			} else if (field.getType().isAssignableFrom(Date.class)) {
 				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
 			} else {
-				Log.w(TAG, String.format("Type '%s' of field '%s' not supported.", field.getType().toString(), field.getName()));
+				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", element.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
 		} catch (IllegalAccessException e) {
 			Log.e(TAG, "valueMapper", e);
@@ -231,10 +254,15 @@ public abstract class RightDBUtils {
 					RightList resultList = getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), field.getType());
 					field.set(result, resultList.isEmpty() ? null: resultList.getFirst());
 				}
+			} else if (field.getType().isAssignableFrom(ColumnDAO.class)) {
+				String value = cursor.getString(cursor.getColumnIndex(columnName));
+				field.set(result, value != null ? MAPPER.readValue(value, field.getClass()) : null);
 			} else {
 				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", result.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
 		} catch (IllegalAccessException e) {
+			Log.e(TAG, "fieldMapper", e);
+		} catch (Exception e) {
 			Log.e(TAG, "fieldMapper", e);
 		}
 	}
