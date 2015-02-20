@@ -4,4 +4,9 @@
 		<item name="typeface">fonts/Roboto-Light.ttf</item>
 	</style>
 
+	<style name="TextViewStyle">
+		<item name="android:textColor">#AA0000</item>
+		<item name="typeface">fonts/Roboto-Regular.ttf</item>
+	</style>
+
 </resources>

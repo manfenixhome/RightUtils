@@ -6,24 +6,24 @@
 				android:layout_height="match_parent"
 				tools:context=".MainActivity">
 
-	<com.rightutils.rightutils.widgets.TypefacedTextView
+	<com.rightutils.rightutils.widgets.TypefaceTextView
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum attr"
 		android:layout_height="wrap_content"
 		rightutils:typeface="fonts/Roboto-Light.ttf"/>
 
-	<com.rightutils.rightutils.widgets.TypefacedTextView
+	<com.rightutils.rightutils.widgets.TypefaceTextView
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum style"
 		android:layout_height="wrap_content"
 		style="@style/TypefaceStyle"/>
 
-	<com.rightutils.rightutils.widgets.TypefacedTextView
+	<com.rightutils.rightutils.widgets.TypefaceTextView
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum theme"
 		android:layout_height="wrap_content"/>
 
-	<com.rightutils.rightutils.widgets.TypefacedButton
+	<com.rightutils.rightutils.widgets.TypefaceButton
 		android:layout_marginTop="2dp"
 		android:id="@+id/btn_db_test"
 		android:textSize="14sp"
