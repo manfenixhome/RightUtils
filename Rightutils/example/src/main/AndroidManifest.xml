@@ -9,7 +9,7 @@
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme">
 		<activity
-			android:name=".activities.MainActivity"
+			android:name=".activities.CustomFontActivity"
 			android:theme="@style/AppTheme"
 			android:label="@string/app_name">
 			<intent-filter>
@@ -18,10 +18,11 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-		<activity
-			android:name=".activities.TestDBActivity"
-			android:label="@string/app_name">
-		</activity>
+		<uses-library android:name="android.test.runner"/>
 	</application>
+
+	<instrumentation android:name="android.test.InstrumentationTestRunner"
+					 android:targetPackage="com.rightutils.example.activities"
+					 android:label="Tests for com.rightutils.example.activities.MainActivity"/>
 
 </manifest>

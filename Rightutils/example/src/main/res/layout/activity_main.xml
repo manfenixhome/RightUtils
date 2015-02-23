@@ -7,32 +7,23 @@
 				tools:context=".MainActivity">
 
 	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_attr_font"
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum attr"
 		android:layout_height="wrap_content"
 		rightutils:typeface="fonts/Roboto-Light.ttf"/>
 
 	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_style_font"
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum style"
 		android:layout_height="wrap_content"
 		style="@style/TypefaceStyle"/>
 
 	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_style_in_theme"
 		android:layout_width="match_parent"
-		android:text="Lorem Ipsum theme"
+		android:text="Lorem Ipsum style in theme"
 		android:layout_height="wrap_content"/>
-
-	<com.rightutils.rightutils.widgets.TypefaceButton
-		android:layout_marginTop="2dp"
-		android:id="@+id/btn_db_test"
-		android:textSize="14sp"
-		android:textColor="#252625"
-		android:text="DB test"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:ellipsize="end"
-		android:lines="2"
-		rightutils:typeface="fonts/Roboto-Light.ttf"/>
 
 </LinearLayout>

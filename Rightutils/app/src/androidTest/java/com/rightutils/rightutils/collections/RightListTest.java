@@ -34,14 +34,16 @@ public class RightListTest extends AndroidTestCase {
 
 	public void testMapRightList() throws Exception {
 		RightList<Company> companies = RightList.asRightList(new Company(1,"company 1"), new Company(2, "company 2"));
+
 		RightList<Long> result = companies.map(new Mapper<Long, Company>() {
 			@Override
 			public Long apply(Company value) {
 				return value.getId();
 			}
 		});
+
+		RightList<Long> expectedResult = RightList.asRightList(1l, 2l);
 		assertEquals(2, result.size());
-		assertTrue(1 == result.get(0));
-		assertTrue(2 == result.get(1));
+		assertTrue(expectedResult.containsAll(result));
 	}
 }

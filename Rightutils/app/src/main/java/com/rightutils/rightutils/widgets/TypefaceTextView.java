@@ -9,6 +9,8 @@ import android.widget.TextView;
  */
 public class TypefaceTextView extends TextView {
 
+	private String fontName;
+
 	public TypefaceTextView(Context context) {
 		super(context, null);
 	}
@@ -19,7 +21,12 @@ public class TypefaceTextView extends TextView {
 		if (isInEditMode()) {
 			return;
 		}
-		TypefaceUtils.setFont(context, attrs, this, android.R.attr.textViewStyle);
+		fontName = TypefaceUtils.setFont(context, attrs, this, android.R.attr.textViewStyle);
 	}
 
+	public String getFontName() {
+		return fontName;
+	}
+
+	//TODO set font programmatically
 }
