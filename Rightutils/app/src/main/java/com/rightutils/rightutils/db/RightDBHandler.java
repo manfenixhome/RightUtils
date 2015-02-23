@@ -34,6 +34,14 @@ public class RightDBHandler extends SQLiteOpenHelper {
 		}
 	}
 
+	public void deleteDataBase() {
+		if (checkDataBase()) {
+			close();
+			File dbFile = new File(path + name);
+			dbFile.delete();
+		}
+	}
+
 	private boolean checkDataBase() {
 		File dbFile = new File(path + name);
 		return dbFile.exists();

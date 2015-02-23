@@ -299,4 +299,7 @@ public abstract class RightDBUtils {
 		return columnName;
 	}
 
+	public RightDBHandler getDbHandler() {
+		return dbHandler;
+	}
 }
