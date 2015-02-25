@@ -4,9 +4,17 @@ Android library for quick development android application.
 
 
 ## Quick Setup
-**Gradle dependency:**
+**Gradle dependency RELEASE:**
 ``` groovy
 compile 'com.rightutils:app:1.2.1@aar'
+```
+**Gradle dependency SNAPSHOT:**
+``` groovy
+compile 'com.rightutils:app:1.2.9-SNAPSHOT@aar'
+
+repositories {
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
 ```
 **Maven dependency:**
 ``` xml
@@ -83,7 +91,7 @@ add(company);
 ```
 <i>Add list of company:<i>
 ``` java
-addAll(companies);
+add(companies);
 ```
 <i>Retrieve all companies from db:<i>
 ``` java
@@ -154,7 +162,7 @@ After that, you can use:<br>
 
 ####TypeFaceWidgets (snapshot)
 
- 1) <b>Specify the same typeface for all widgets in application theme.</b>
+#####1) Specify the same typeface for all widgets in application theme.
 ``` xml
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -166,7 +174,7 @@ After that, you can use:<br>
 	</style>
 
 ```
- 2) <b>Specify typefaces for each type of widgets in application theme.</b>
+#####2) Specify typefaces for each type of widgets in application theme.
 
 ``` xml
     <!-- Base application theme. -->
@@ -215,7 +223,7 @@ Then you can add new styles extended already defined.
     </style>
 ```
  
- 3) <b>Specify font in style.</b>
+#####3) Specify font in style.
 ``` xml
 	<style name="TextViewStyle" parent="android:Widget.TextView">
 		<item name="typeface">fonts/Roboto-Regular.ttf</item>
@@ -229,7 +237,7 @@ Set style for widget directly in layout xml file.
 		android:layout_height="wrap_content"
 		style="@style/TypefaceStyle"/>
 ```
- 4) <b>Specify font directly in widget's element in layout xml file.</b>
+#####4) Specify font directly in widget's element in layout xml file.
  Declare font tag in root element of layout xml file.
 ``` xml
 xmlns:font="http://schemas.android.com/apk/res-auto"
@@ -239,6 +247,6 @@ xmlns:font="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
 		android:text="Lorem Ipsum style"
 		android:layout_height="wrap_content"
-		style="@style/TypefaceStyle"/>
+		font:typeface="fonts/Roboto-Regular.ttf"/>
 ```
 
