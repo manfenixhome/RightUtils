@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -27,7 +29,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 
 	public RightList<T> filter(Predicate<T> predicate) {
 		RightList<T> result = new RightList<T>();
-		for (T element : this) {
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			T element = iterator.next();
 			if (predicate.apply(element)) {
 				result.add(element);
 			}
@@ -37,8 +41,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 
 	public <E> RightList<E> map(Mapper<E, T> mapper) {
 		RightList<E> result = new RightList<E>();
-		for(T element: this) {
-			result.add(mapper.apply(element));
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			result.add(mapper.apply(iterator.next()));
 		}
 		return result;
 	}
@@ -51,7 +56,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 	}
 
 	public T findBy(Predicate<T> predicate) {
-		for (T element : this) {
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			T element = iterator.next();
 			if (predicate.apply(element)) {
 				return element;
 			}
@@ -61,7 +68,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 
 	public <E> RightList<Pair<E,RightList<T>>> groupBy(Mapper<E, T> mapper) {
 		Map<E, RightList<T>> map = new HashMap<E, RightList<T>>();
-		for (T element: this) {
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			T element = iterator.next();
 			E groupKey = mapper.apply(element);
 			if (map.get(groupKey) == null) {
 				map.put(groupKey, new RightList<T>());
@@ -77,8 +86,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 
 	public <E> E reduce(E initValue, Function<E,T> function) {
 		E result = initValue;
-		for(T element: this) {
-			result = function.apply(result, element);
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			result = function.apply(result, iterator.next());
 		}
 		return result;
 	}
@@ -89,8 +99,9 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 	}
 
 	public void foreach(Operation<T> operation) {
-		for (T element : this) {
-			operation.execute(element);
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			operation.execute(iterator.next());
 		}
 	}
 
@@ -115,4 +126,13 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 		}
 		return this.get(0);
 	}
+
+	public RightList<T> subList(int start, int end) {
+		return RightList.asRightList(super.subList(start, end));
+	}
+
+	public RightList<T> subList(int start) {
+		return RightList.asRightList(super.subList(start, size()));
+	}
+
 }

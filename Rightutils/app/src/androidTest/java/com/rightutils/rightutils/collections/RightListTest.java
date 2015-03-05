@@ -46,4 +46,38 @@ public class RightListTest extends AndroidTestCase {
 		assertEquals(2, result.size());
 		assertTrue(expectedResult.containsAll(result));
 	}
+
+	public void testFindBy() throws Exception {
+		RightList<Company> companies = RightList.asRightList(
+				new Company(1,"company 1"),
+				new Company(2,"company 2"),
+				new Company(3,"company 3")
+		);
+		Company company = companies.findBy(new Predicate<Company>() {
+			@Override
+			public boolean apply(Company value) {
+				return "company 2".equals(value.getName());
+			}
+		});
+		assertEquals(new Company(2, "company 2"), company);
+	}
+
+	public void testReduceSimple() throws Exception {
+		RightList<Company> companies = RightList.asRightList(
+				new Company(1,"company 1"),
+				new Company(2,"company 2"),
+				new Company(3,"company 3")
+		);
+
+		String result = companies.reduce("", new Function<String, Company>() {
+			@Override
+			public String apply(String prevResult, Company value) {
+				if ("".equals(prevResult)) {
+					return value.getName();
+				}
+				return prevResult + ", " + value.getName();
+			}
+		});
+		assertEquals("company 1, company 2, company 3", result);
+	}
 }

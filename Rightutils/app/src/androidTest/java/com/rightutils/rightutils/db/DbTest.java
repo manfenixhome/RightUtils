@@ -2,6 +2,7 @@ package com.rightutils.rightutils.db;
 
 import android.test.AndroidTestCase;
 
+import com.rightutils.rightutils.collections.Function;
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.entities.Company;
 
@@ -36,7 +37,7 @@ public class DbTest extends AndroidTestCase {
 	}
 
 	public void testAddList() throws Exception {
-		RightList companies = RightList.asRightList(new Company(100, "Company name 1"), new Company(101, "Company name 2"));
+		RightList<Company> companies = RightList.asRightList(new Company(100, "Company name 1"), new Company(101, "Company name 2"));
 
 		dbUtils.add(companies);
 		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
@@ -47,7 +48,7 @@ public class DbTest extends AndroidTestCase {
 
 	public void testGetAllWhere() throws Exception {
 		Company company = new Company(101, "Company name 2");
-		RightList companies = RightList.asRightList(new Company(100, "Company name 1"), company);
+		RightList<Company> companies = RightList.asRightList(new Company(100, "Company name 1"), company);
 		dbUtils.add(companies);
 
 		RightList<Company> dbCompanies = dbUtils.getAllWhere("id = 101", Company.class);
@@ -56,7 +57,7 @@ public class DbTest extends AndroidTestCase {
 	}
 
 	public void testDeleteAll() throws Exception {
-		RightList companies = RightList.asRightList(new Company(100, "Company name 1"), new Company(101, "Company name 2"));
+		RightList<Company> companies = RightList.asRightList(new Company(100, "Company name 1"), new Company(101, "Company name 2"));
 
 		dbUtils.add(companies);
 		dbUtils.deleteAll(Company.class);
@@ -64,4 +65,5 @@ public class DbTest extends AndroidTestCase {
 
 		assertTrue(dbCompanies.isEmpty());
 	}
+
 }
