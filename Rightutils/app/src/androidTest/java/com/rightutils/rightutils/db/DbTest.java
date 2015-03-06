@@ -5,6 +5,7 @@ import android.test.AndroidTestCase;
 import com.rightutils.rightutils.collections.Function;
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.entities.Company;
+import com.rightutils.rightutils.entities.Worker;
 
 /**
  * Created by Anton Maniskevich on 2/23/15.
@@ -66,4 +67,12 @@ public class DbTest extends AndroidTestCase {
 		assertTrue(dbCompanies.isEmpty());
 	}
 
+	public void testDaoSimple() throws Exception {
+		Worker worker = new Worker(1, 25, "Joel", true, new Company(100, "Company name 1"));
+		dbUtils.add(worker);
+		RightList<Worker> dbWorkers = dbUtils.getAll(Worker.class);
+
+		assertEquals(1, dbWorkers.size());
+		assertEquals(worker, dbWorkers.getFirst());
+	}
 }

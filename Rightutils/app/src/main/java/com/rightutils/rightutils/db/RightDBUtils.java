@@ -254,9 +254,9 @@ public abstract class RightDBUtils {
 					RightList resultList = getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), field.getType());
 					field.set(result, resultList.isEmpty() ? null: resultList.getFirst());
 				}
-			} else if (field.getType().isAssignableFrom(ColumnDAO.class)) {
+			} else if (field.isAnnotationPresent(ColumnDAO.class)) {
 				String value = cursor.getString(cursor.getColumnIndex(columnName));
-				field.set(result, value != null ? MAPPER.readValue(value, field.getClass()) : null);
+				field.set(result, value != null ? MAPPER.readValue(value, field.getType()) : null);
 			} else {
 				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", result.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
