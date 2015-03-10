@@ -104,7 +104,7 @@ public abstract class RightDBUtils {
 			public void execute(Field value) {
 				if (value.isAnnotationPresent(ColumnAutoInc.class)) {
 					valueAutoIncMapper(values, value, element);
-				} if (value.isAnnotationPresent(ColumnDAO.class)) {
+				} else if (value.isAnnotationPresent(ColumnDAO.class)) {
 					valueDAOMapper(values, value, element);
 				} else if (!value.isAnnotationPresent(ColumnChild.class)) {
 					valueMapper(values, value, element);

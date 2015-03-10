@@ -1,5 +1,7 @@
 package com.rightutils.rightutils.entities;
 
+import com.rightutils.rightutils.db.ColumnAutoInc;
+
 import java.io.Serializable;
 
 /**
@@ -7,10 +9,15 @@ import java.io.Serializable;
  */
 public class Company implements Serializable {
 
+	@ColumnAutoInc
 	private long id;
 	private String name;
 
 	public Company() {
+	}
+
+	public Company(String name) {
+		this.name = name;
 	}
 
 	public Company(long id, String name) {
