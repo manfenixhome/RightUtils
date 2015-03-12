@@ -45,7 +45,7 @@ public class DbTest extends AndroidTestCase {
 		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
 
 		assertEquals(2, dbCompanies.size());
-		assertEquals(new Company(1, "Company name"), dbCompanies.get(0));
+		assertEquals(new Company(1, "Coompany name"), dbCompanies.get(0));
 		assertEquals(new Company(2, "Company name"), dbCompanies.get(1));
 	}
 
