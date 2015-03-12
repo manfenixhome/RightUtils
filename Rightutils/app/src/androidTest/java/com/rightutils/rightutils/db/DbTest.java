@@ -12,12 +12,12 @@ import com.rightutils.rightutils.entities.Worker;
  */
 public class DbTest extends AndroidTestCase {
 
-	private DBUtils dbUtils;
+	private DBUtilsNew dbUtils;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		dbUtils = DBUtils.newInstance(getContext(), "example_test.sqlite", 1);
+		dbUtils = DBUtilsNew.newInstance(getContext(), "example_test.sqlite", 1);
 		assertNotNull(dbUtils.db);
 	}
 
