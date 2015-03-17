@@ -15,10 +15,15 @@ public abstract class CacheUtils {
 	private static final String TAG = CacheUtils.class.getSimpleName();
 
 	public interface CallBack<T> {
-		public void run(T cache);
+		public boolean run(T cache);
 	}
 
-	public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback, boolean saveCache) {
+    @Deprecated
+    public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback, boolean saveCache) {
+        getCache(mapper,type,context,callback);
+    }
+
+	public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback) {
 		T cache = null;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!"".equals(sharedPreferences.getString(type.getSimpleName(), ""))) {
@@ -37,15 +42,14 @@ public abstract class CacheUtils {
 		}
 
 		if(callback != null){
-			callback.run(cache);
-		}
-		if(saveCache) {
-			try {
-				sharedPreferences.edit().remove(type.getSimpleName()).commit();
-				sharedPreferences.edit().putString(type.getSimpleName(), mapper.writeValueAsString(cache)).commit();
-			} catch (Exception e) {
-				Log.e(TAG, "save CACHE", e);
-			}
+			if(callback.run(cache)){
+                try {
+                    sharedPreferences.edit().remove(type.getSimpleName()).commit();
+                    sharedPreferences.edit().putString(type.getSimpleName(), mapper.writeValueAsString(cache)).commit();
+                } catch (Exception e) {
+                    Log.e(TAG, "save CACHE", e);
+                }
+            }
 		}
 	}
 
