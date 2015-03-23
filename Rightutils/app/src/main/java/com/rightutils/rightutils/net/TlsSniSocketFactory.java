@@ -28,8 +28,7 @@ public class TlsSniSocketFactory implements LayeredConnectionSocketFactory {
 
 	public final static TlsSniSocketFactory INSTANCE = new TlsSniSocketFactory();
 
-	private final static SSLCertificateSocketFactory sslSocketFactory =
-			(SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
+	private final static SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
 	private final static HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
 
 
