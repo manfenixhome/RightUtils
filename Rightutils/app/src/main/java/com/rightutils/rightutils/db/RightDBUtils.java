@@ -104,7 +104,7 @@ public abstract class RightDBUtils {
 			public void execute(Field value) {
 				if (value.isAnnotationPresent(ColumnAutoInc.class)) {
 					valueAutoIncMapper(values, value, element);
-				} if (value.isAnnotationPresent(ColumnDAO.class)) {
+				} else if (value.isAnnotationPresent(ColumnDAO.class)) {
 					valueDAOMapper(values, value, element);
 				} else if (!value.isAnnotationPresent(ColumnChild.class)) {
 					valueMapper(values, value, element);
@@ -254,9 +254,9 @@ public abstract class RightDBUtils {
 					RightList resultList = getAllWhere(String.format("%s = %d", foreignKey, parentKeyValue), field.getType());
 					field.set(result, resultList.isEmpty() ? null: resultList.getFirst());
 				}
-			} else if (field.getType().isAssignableFrom(ColumnDAO.class)) {
+			} else if (field.isAnnotationPresent(ColumnDAO.class)) {
 				String value = cursor.getString(cursor.getColumnIndex(columnName));
-				field.set(result, value != null ? MAPPER.readValue(value, field.getClass()) : null);
+				field.set(result, value != null ? MAPPER.readValue(value, field.getType()) : null);
 			} else {
 				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", result.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}

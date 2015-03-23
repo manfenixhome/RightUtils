@@ -1,5 +1,7 @@
 package com.rightutils.rightutils.entities;
 
+import com.rightutils.rightutils.db.ColumnDAO;
+
 /**
  * Created by Anton Maniskevich on 2/23/15.
  */
@@ -9,12 +11,18 @@ public class Worker {
 	private int age;
 	private String name;
 	private boolean gender;
+	@ColumnDAO
+	private Company company;
 
-	public Worker(long id, int age, String name, boolean gender) {
+	public Worker() {
+	}
+
+	public Worker(long id, int age, String name, boolean gender, Company company) {
 		this.id = id;
 		this.age = age;
 		this.name = name;
 		this.gender = gender;
+		this.company = company;
 	}
 
 	@Override
@@ -24,6 +32,7 @@ public class Worker {
 				", age=" + age +
 				", name='" + name + '\'' +
 				", gender=" + gender +
+				", company=" + company +
 				'}';
 	}
 
@@ -37,6 +46,8 @@ public class Worker {
 		if (age != worker.age) return false;
 		if (gender != worker.gender) return false;
 		if (id != worker.id) return false;
+		if (company != null ? !company.equals(worker.company) : worker.company != null)
+			return false;
 		if (name != null ? !name.equals(worker.name) : worker.name != null) return false;
 
 		return true;
@@ -48,6 +59,7 @@ public class Worker {
 		result = 31 * result + age;
 		result = 31 * result + (name != null ? name.hashCode() : 0);
 		result = 31 * result + (gender ? 1 : 0);
+		result = 31 * result + (company != null ? company.hashCode() : 0);
 		return result;
 	}
 
@@ -81,5 +93,13 @@ public class Worker {
 
 	public void setGender(boolean gender) {
 		this.gender = gender;
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 }

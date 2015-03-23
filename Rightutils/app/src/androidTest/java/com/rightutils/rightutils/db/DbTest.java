@@ -5,18 +5,19 @@ import android.test.AndroidTestCase;
 import com.rightutils.rightutils.collections.Function;
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.entities.Company;
+import com.rightutils.rightutils.entities.Worker;
 
 /**
  * Created by Anton Maniskevich on 2/23/15.
  */
 public class DbTest extends AndroidTestCase {
 
-	private DBUtils dbUtils;
+	private DBUtilsNew dbUtils;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		dbUtils = DBUtils.newInstance(getContext(), "example_test.sqlite", 1);
+		dbUtils = DBUtilsNew.newInstance(getContext(), "example_test.sqlite", 1);
 		assertNotNull(dbUtils.db);
 	}
 
@@ -34,6 +35,18 @@ public class DbTest extends AndroidTestCase {
 
 		assertEquals(1, dbCompanies.size());
 		assertEquals(company, dbCompanies.getFirst());
+	}
+
+	public void testAddEntityAutoInc() throws Exception {
+		Company company = new Company("Company name");
+
+		dbUtils.add(company);
+		dbUtils.add(company);
+		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
+
+		assertEquals(2, dbCompanies.size());
+		assertEquals(new Company(1, "Coompany name"), dbCompanies.get(0));
+		assertEquals(new Company(2, "Company name"), dbCompanies.get(1));
 	}
 
 	public void testAddList() throws Exception {
@@ -66,4 +79,12 @@ public class DbTest extends AndroidTestCase {
 		assertTrue(dbCompanies.isEmpty());
 	}
 
+	public void testDaoSimple() throws Exception {
+		Worker worker = new Worker(1, 25, "Joel", true, new Company(100, "Company name 1"));
+		dbUtils.add(worker);
+		RightList<Worker> dbWorkers = dbUtils.getAll(Worker.class);
+
+		assertEquals(1, dbWorkers.size());
+		assertEquals(worker, dbWorkers.getFirst());
+	}
 }
