@@ -87,7 +87,7 @@ public abstract class AbstractProgressDialogFragment<T> extends DialogFragment i
 
 			@Override
 			public void run() {
-				dismiss();
+				dismissAllowingStateLoss();
 			}
 		});
 	}
