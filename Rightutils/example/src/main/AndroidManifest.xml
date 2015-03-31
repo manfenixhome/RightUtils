@@ -9,15 +9,22 @@
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme">
 		<activity
-			android:name=".activities.CustomFontActivity"
+			android:name=".activities.MainActivity"
 			android:theme="@style/AppTheme"
-			android:label="@string/app_name">
+			android:label="RightUtils examples">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
+		<activity
+			android:name=".activities.CustomFontActivity"
+			android:label="CustomFontActivity"/>
+		<activity android:name=".activities.LoaderActivity"
+				  android:label="LoaderActivity"/>
+		<activity android:name=".activities.FragmentLoaderActivity"
+				  android:label="FragmentLoaderActivity"/>
 		<uses-library android:name="android.test.runner"/>
 	</application>
 

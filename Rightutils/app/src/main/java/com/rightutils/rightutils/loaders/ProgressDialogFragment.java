@@ -58,6 +58,7 @@ public class ProgressDialogFragment<T> extends AbstractProgressDialogFragment<T>
 	}
 
 	private static Fragment getFragmentByTag(FragmentActivity fragmentActivity, String tag) {
+
 		if (fragmentActivity.getSupportFragmentManager().getBackStackEntryCount() == 0) {
 			return null;
 		}

@@ -1,29 +1,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:tools="http://schemas.android.com/tools"
-				xmlns:rightutils="http://schemas.android.com/apk/res-auto"
-				android:orientation="vertical"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				tools:context=".MainActivity">
+			  xmlns:tools="http://schemas.android.com/tools"
+			  xmlns:rightutils="http://schemas.android.com/apk/res-auto"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  tools:context=".MainActivity">
 
-	<com.rightutils.rightutils.widgets.TypefaceTextView
-		android:id="@+id/txt_attr_font"
+	<com.rightutils.rightutils.widgets.TypefaceButton
+		android:id="@+id/btn_custom_font_activity"
+		android:text="Custom font activity"
 		android:layout_width="match_parent"
-		android:text="Lorem Ipsum attr"
-		android:layout_height="wrap_content"
-		rightutils:typeface="fonts/Roboto-Light.ttf"/>
+		android:layout_height="wrap_content"/>
 
-	<com.rightutils.rightutils.widgets.TypefaceTextView
-		android:id="@+id/txt_style_font"
+	<com.rightutils.rightutils.widgets.TypefaceButton
+		android:id="@+id/btn_loader_activity"
+		android:text="Loader activity"
 		android:layout_width="match_parent"
-		android:text="Lorem Ipsum style"
-		android:layout_height="wrap_content"
-		style="@style/TypefaceStyle"/>
+		android:layout_height="wrap_content"/>
 
-	<com.rightutils.rightutils.widgets.TypefaceTextView
-		android:id="@+id/txt_style_in_theme"
+	<com.rightutils.rightutils.widgets.TypefaceButton
+		android:id="@+id/btn_fragment_loader"
+		android:text="Fragment Loader Activity"
 		android:layout_width="match_parent"
-		android:text="Lorem Ipsum style in theme"
 		android:layout_height="wrap_content"/>
 
 </LinearLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  xmlns:rightutils="http://schemas.android.com/apk/res-auto"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+
+	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_attr_font"
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum attr"
+		android:layout_height="wrap_content"
+		rightutils:typeface="fonts/Roboto-Light.ttf"/>
+
+	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_style_font"
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum style"
+		android:layout_height="wrap_content"
+		style="@style/TypefaceStyle"/>
+
+	<com.rightutils.rightutils.widgets.TypefaceTextView
+		android:id="@+id/txt_style_in_theme"
+		android:layout_width="match_parent"
+		android:text="Lorem Ipsum style in theme"
+		android:layout_height="wrap_content"/>
+
+</LinearLayout>
