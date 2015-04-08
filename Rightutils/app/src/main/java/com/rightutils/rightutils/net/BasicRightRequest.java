@@ -41,6 +41,7 @@ public class BasicRightRequest implements RightRequest {
 	public BasicRightRequest(int maxTotal, int maxPerRoute) {
 		this.maxTotal = maxTotal;
 		this.maxPerRoute = maxPerRoute;
+        initSocketFactory();
 	}
 
 	private void initSocketFactory() {
@@ -169,7 +170,7 @@ public class BasicRightRequest implements RightRequest {
 	}
 
 	//inner methods
-	private HttpClient getHttpClient() {
+	protected HttpClient getHttpClient() {
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 		connectionManager.setMaxTotal(DEFAULT_MAX_TOTAL);
 		connectionManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
