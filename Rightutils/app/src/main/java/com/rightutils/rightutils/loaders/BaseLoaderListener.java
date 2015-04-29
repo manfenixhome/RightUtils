@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentActivity;
 public abstract class BaseLoaderListener<T> implements LoaderListener<T> {
 
 	@Override
-	public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, T data) {
+	public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, T data, BaseLoader<T> loader) {
 	}
 
 	@Override

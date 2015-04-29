@@ -3,6 +3,7 @@ package com.rightutils.rightutils.loaders;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.AsyncTaskLoader;
+import android.util.Log;
 
 public abstract class BaseLoader<T> extends AsyncTaskLoader<T> {
 
@@ -30,6 +31,12 @@ public abstract class BaseLoader<T> extends AsyncTaskLoader<T> {
 					.setTaskLoaderListener(loaderListener)
 					.show();
 		}
+	}
+
+	@Override
+	protected void onStartLoading() {
+		super.onStartLoading();
+		forceLoad();
 	}
 
 	public void setCanceled(boolean canceled) {
