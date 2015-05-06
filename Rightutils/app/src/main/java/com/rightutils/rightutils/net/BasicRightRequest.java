@@ -236,6 +236,7 @@ public class BasicRightRequest implements RightRequest {
 		return httpClient.execute(put);
 	}
 
+	@Override
 	public HttpResponse putHttpResponse(String url, Header header, HttpEntity entity) throws Exception {
 		HttpPut put = getPutHeaderToken(url, header);
 		put.setEntity(entity);
