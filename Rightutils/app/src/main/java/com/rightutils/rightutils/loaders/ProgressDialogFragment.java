@@ -34,9 +34,9 @@ public class ProgressDialogFragment<T> extends AbstractProgressDialogFragment<T>
 				@Override
 				public void run() {
 					if (getLoader().getContainer() != null) {
-						taskLoaderListener.onLoadFinished(getActivity(), getFragmentByTag(getActivity(), getLoader().getContainer().getName()), data);
+						taskLoaderListener.onLoadFinished(getActivity(), getFragmentByTag(getActivity(), getLoader().getContainer().getName()), data,  getLoader());
 					} else {
-						taskLoaderListener.onLoadFinished(getActivity(), null, data);
+						taskLoaderListener.onLoadFinished(getActivity(), null, data,  getLoader());
 					}
 				}
 			});

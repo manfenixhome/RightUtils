@@ -60,7 +60,6 @@ public abstract class AbstractProgressDialogFragment<T> extends DialogFragment i
 	
 	@Override
 	public Loader<T> onCreateLoader(int id, Bundle args) {
-		loader.forceLoad();
 		return loader;
 	}
 

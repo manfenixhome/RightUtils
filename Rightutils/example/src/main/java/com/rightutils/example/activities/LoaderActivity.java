@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.rightutils.example.R;
 import com.rightutils.example.loaders.CustomLoader;
+import com.rightutils.rightutils.loaders.BaseLoader;
 import com.rightutils.rightutils.loaders.BaseLoaderListener;
 
 /**
@@ -35,7 +36,7 @@ public class LoaderActivity extends ActionBarActivity implements View.OnClickLis
 						.setCancelable(false)
 						.setLoaderListener(new BaseLoaderListener<Boolean>() {
 							@Override
-							public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, Boolean data) {
+							public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, Boolean data, BaseLoader<Boolean> loader) {
 								Log.i(TAG, "Activity = " + activity);
 								Log.i(TAG, "Fragment = " + fragmentContainer);
 								Log.i(TAG, "Result = " + data);

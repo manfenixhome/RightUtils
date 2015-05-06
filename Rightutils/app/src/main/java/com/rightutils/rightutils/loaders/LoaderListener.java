@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentActivity;
 
 public interface LoaderListener<T> {
 
-	void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, T data);
+	void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, T data, BaseLoader<T> loader);
 
 	void onCancelLoad();
 }
