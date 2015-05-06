@@ -1,6 +1,8 @@
 package com.rightutils.rightutils.net;
 
+import java.io.IOException;
 import java.util.List;
+
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
@@ -11,6 +13,7 @@ import ch.boye.httpclientandroidlib.client.entity.UrlEncodedFormEntity;
 import ch.boye.httpclientandroidlib.client.methods.HttpDelete;
 import ch.boye.httpclientandroidlib.client.methods.HttpGet;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
+import ch.boye.httpclientandroidlib.client.methods.HttpPut;
 import ch.boye.httpclientandroidlib.config.Registry;
 import ch.boye.httpclientandroidlib.config.RegistryBuilder;
 import ch.boye.httpclientandroidlib.conn.socket.ConnectionSocketFactory;
@@ -26,199 +29,292 @@ import ch.boye.httpclientandroidlib.protocol.HTTP;
  */
 public class BasicRightRequest implements RightRequest {
 
-	private static final String TAG = BasicRightRequest.class.getSimpleName();
-	protected static final int DEFAULT_MAX_TOTAL = 3;
-	protected static final int DEFAULT_MAX_PER_ROUTE = 2;
+    protected static final int DEFAULT_MAX_TOTAL = 3;
+    protected static final int DEFAULT_MAX_PER_ROUTE = 2;
+    private static final String TAG = BasicRightRequest.class.getSimpleName();
+    protected int maxTotal = DEFAULT_MAX_TOTAL;
+    protected int maxPerRoute = DEFAULT_MAX_PER_ROUTE;
+    protected Registry<ConnectionSocketFactory> socketFactoryRegistry;
 
-	protected int maxTotal = DEFAULT_MAX_TOTAL;
-	protected int maxPerRoute = DEFAULT_MAX_PER_ROUTE;
-	protected Registry<ConnectionSocketFactory> socketFactoryRegistry;
-
-	private BasicRightRequest() {
-		initSocketFactory();
-	}
-
-	public BasicRightRequest(int maxTotal, int maxPerRoute) {
-		this.maxTotal = maxTotal;
-		this.maxPerRoute = maxPerRoute;
+    private BasicRightRequest() {
         initSocketFactory();
-	}
+    }
 
-	private void initSocketFactory() {
-		socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("http", PlainConnectionSocketFactory.getSocketFactory())
-				.register("https", TlsSniSocketFactory.INSTANCE)
-				.build();
-	}
+    public BasicRightRequest(int maxTotal, int maxPerRoute) {
+        this.maxTotal = maxTotal;
+        this.maxPerRoute = maxPerRoute;
+        initSocketFactory();
+    }
 
-	//GET METHODS
-	@Override
-	public HttpResponse getHttpResponse(String url) throws Exception {
-		HttpGet get = getGet(url);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(get);
-	}
+    private static HttpPut getPutHeaderToken(String url, Header header) {
+        HttpPut put = new HttpPut(url);
+        put.setHeader(header);
+        return put;
+    }
 
-	@Override
-	public HttpResponse getHttpResponse(String url, RequestConfig config) throws Exception {
-		HttpGet get = getGet(url);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(get);
-	}
+    private void initSocketFactory() {
+        socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                .register("https", TlsSniSocketFactory.INSTANCE)
+                .build();
+    }
 
-	@Override
-	public HttpResponse getHttpResponse(String url, Header[] headers) throws Exception {
-		HttpGet get = getGetHeaderToken(url, headers);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(get);
-	}
+    //GET METHODS
+    @Override
+    public HttpResponse getHttpResponse(String url) throws Exception {
+        HttpGet get = getGet(url);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(get);
+    }
 
-	@Override
-	public HttpResponse getHttpResponse(String url, Header header) throws Exception {
-		HttpGet get = getGetHeaderToken(url, header);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(get);
-	}
+    @Override
+    public HttpResponse getHttpResponse(String url, RequestConfig config) throws Exception {
+        HttpGet get = getGet(url);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(get);
+    }
 
+    @Override
+    public HttpResponse getHttpResponse(String url, Header[] headers) throws Exception {
+        HttpGet get = getGetHeaderToken(url, headers);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(get);
+    }
 
-	//POST methods
-	@Override
-	public HttpResponse postHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
-		HttpPost post = getPost(url);
-		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse getHttpResponse(String url, Header header) throws Exception {
+        HttpGet get = getGetHeaderToken(url, header);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(get);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception {
-		HttpPost post = getPostHeaderToken(url, header);
-		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    //POST methods
+    @Override
+    public HttpResponse postHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPost post = getPost(url);
+        post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception {
-		HttpPost post = getPostHeaderToken(url, headers);
-		post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPost post = getPostHeaderToken(url, header);
+        post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, HttpEntity entity) throws Exception {
-		HttpPost post = getPost(url);
-		post.setEntity(entity);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPost post = getPostHeaderToken(url, headers);
+        post.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, Header header, HttpEntity entity) throws Exception {
-		HttpPost post = getPostHeaderToken(url, header);
-		post.setEntity(entity);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, HttpEntity entity) throws Exception {
+        HttpPost post = getPost(url);
+        post.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, StringEntity entity) throws Exception {
-		HttpPost post = getPost(url);
-		post.setHeader("Content-Type", "application/json");
-		entity.setContentEncoding("UTF-8");
-		entity.setContentType("application/json");
-		post.setEntity(entity);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, Header header, HttpEntity entity) throws Exception {
+        HttpPost post = getPostHeaderToken(url, header);
+        post.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, String json) throws Exception {
-		StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
-		HttpPost post = getPost(url);
-		post.setHeader("Content-Type", "application/json");
-		post.setEntity(entity);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, StringEntity entity) throws Exception {
+        HttpPost post = getPost(url);
+        post.setHeader("Content-Type", "application/json");
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");
+        post.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse postHttpResponse(String url, Header header, String json) throws Exception {
-		StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
-		HttpPost post = getPostHeaderToken(url, header);
-		post.setHeader("Content-Type", "application/json");
-		post.setEntity(entity);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(post);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, String json) throws Exception {
+        StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+        HttpPost post = getPost(url);
+        post.setHeader("Content-Type", "application/json");
+        post.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	//DELETE methods
+    //DELETE methods
 
-	@Override
-	public HttpResponse deleteHttpResponse(String url) throws Exception {
-		HttpDelete delete = getDelete(url);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(delete);
-	}
+    @Override
+    public HttpResponse postHttpResponse(String url, Header header, String json) throws Exception {
+        StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+        HttpPost post = getPostHeaderToken(url, header);
+        post.setHeader("Content-Type", "application/json");
+        post.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(post);
+    }
 
-	@Override
-	public HttpResponse deleteHttpResponse(String url, Header header) throws Exception {
-		HttpDelete delete = getDeleteHeaderToken(url, header);
-		HttpClient httpClient = getHttpClient();
-		return httpClient.execute(delete);
-	}
+    @Override
+    public HttpResponse deleteHttpResponse(String url) throws Exception {
+        HttpDelete delete = getDelete(url);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(delete);
+    }
 
-	//inner methods
-	protected HttpClient getHttpClient() {
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		connectionManager.setMaxTotal(DEFAULT_MAX_TOTAL);
-		connectionManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
-		return HttpClientBuilder.create().setConnectionManager(connectionManager).build();
-	}
+    @Override
+    public HttpResponse deleteHttpResponse(String url, Header header) throws Exception {
+        HttpDelete delete = getDeleteHeaderToken(url, header);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(delete);
+    }
 
-	private HttpPost getPost(String url) {
-		HttpPost post = new HttpPost(url);
-		return post;
-	}
+    //PUT methods
+    @Override
+    public HttpResponse putHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPut put = getPut(url);
+        put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpPost getPostHeaderToken(String url, Header[] headers) {
-		HttpPost post = new HttpPost(url);
-		post.setHeaders(headers);
-		return post;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, String json) throws IOException {
+        StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+        HttpPut put = getPut(url);
+        put.setHeader("Content-Type", "application/json");
+        put.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpPost getPostHeaderToken(String url, Header header) {
-		HttpPost post = new HttpPost(url);
-		post.setHeader(header);
-		return post;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, Header header, String json) throws IOException {
+        StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+        HttpPut put = getPutHeaderToken(url, header);
+        put.setHeader("Content-Type", "application/json");
+        put.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpGet getGetHeaderToken(String url, Header[] headers) {
-		HttpGet get = getGet(url);
-		get.setHeaders(headers);
-		return get;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPut put = getPutHeaderToken(url, headers);
+        put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpGet getGetHeaderToken(String url, Header header) {
-		HttpGet get = getGet(url);
-		get.setHeader(header);
-		return get;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception {
+        HttpPut put = getPutHeaderToken(url, header);
+        put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpGet getGet(String url) {
-		HttpGet get = new HttpGet(url);
-		return get;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, Header header) throws Exception {
+        HttpPut put = getPutHeaderToken(url, header);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpDelete getDelete(String url) {
-		HttpDelete delete = new HttpDelete(url);
-		return delete;
-	}
+    @Override
+    public HttpResponse putHttpResponse(String url, HttpEntity entity) throws IOException {
+        HttpPut put = getPut(url);
+        put.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
 
-	private HttpDelete getDeleteHeaderToken(String url, Header header) {
-		HttpDelete delete = new HttpDelete(url);
-		delete.setHeader(header);
-		return delete;
-	}
+    public HttpResponse putHttpResponse(String url, Header header, HttpEntity entity) throws Exception {
+        HttpPut put = getPutHeaderToken(url, header);
+        put.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
+
+    @Override
+    public HttpResponse putHttpResponse(String url, StringEntity entity) throws Exception {
+        HttpPut put = getPut(url);
+        put.setHeader("Content-Type", "application/json");
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");
+        put.setEntity(entity);
+        HttpClient httpClient = getHttpClient();
+        return httpClient.execute(put);
+    }
+
+    //inner methods
+    protected HttpClient getHttpClient() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        connectionManager.setMaxTotal(DEFAULT_MAX_TOTAL);
+        connectionManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
+        return HttpClientBuilder.create().setConnectionManager(connectionManager).build();
+    }
+
+    private HttpPost getPost(String url) {
+        HttpPost post = new HttpPost(url);
+        return post;
+    }
+
+    private HttpPost getPostHeaderToken(String url, Header[] headers) {
+        HttpPost post = new HttpPost(url);
+        post.setHeaders(headers);
+        return post;
+    }
+
+    private HttpPost getPostHeaderToken(String url, Header header) {
+        HttpPost post = new HttpPost(url);
+        post.setHeader(header);
+        return post;
+    }
+
+    private HttpGet getGetHeaderToken(String url, Header[] headers) {
+        HttpGet get = getGet(url);
+        get.setHeaders(headers);
+        return get;
+    }
+
+    private HttpGet getGetHeaderToken(String url, Header header) {
+        HttpGet get = getGet(url);
+        get.setHeader(header);
+        return get;
+    }
+
+    private HttpGet getGet(String url) {
+        HttpGet get = new HttpGet(url);
+        return get;
+    }
+
+    private HttpDelete getDelete(String url) {
+        HttpDelete delete = new HttpDelete(url);
+        return delete;
+    }
+
+    private HttpDelete getDeleteHeaderToken(String url, Header header) {
+        HttpDelete delete = new HttpDelete(url);
+        delete.setHeader(header);
+        return delete;
+    }
+
+    private HttpPut getPut(String url) {
+        HttpPut put = new HttpPut(url);
+        return put;
+    }
+
+    private HttpPut getPutHeaderToken(String url, Header[] headers) {
+        HttpPut put = new HttpPut(url);
+        put.setHeaders(headers);
+        return put;
+    }
 }
