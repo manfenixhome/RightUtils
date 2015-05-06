@@ -1,6 +1,8 @@
 package com.rightutils.rightutils.net;
 
+import java.io.IOException;
 import java.util.List;
+
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
@@ -11,6 +13,7 @@ import ch.boye.httpclientandroidlib.client.entity.UrlEncodedFormEntity;
 import ch.boye.httpclientandroidlib.client.methods.HttpDelete;
 import ch.boye.httpclientandroidlib.client.methods.HttpGet;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
+import ch.boye.httpclientandroidlib.client.methods.HttpPut;
 import ch.boye.httpclientandroidlib.config.Registry;
 import ch.boye.httpclientandroidlib.config.RegistryBuilder;
 import ch.boye.httpclientandroidlib.conn.socket.ConnectionSocketFactory;
@@ -26,10 +29,9 @@ import ch.boye.httpclientandroidlib.protocol.HTTP;
  */
 public class BasicRightRequest implements RightRequest {
 
-	private static final String TAG = BasicRightRequest.class.getSimpleName();
 	protected static final int DEFAULT_MAX_TOTAL = 3;
 	protected static final int DEFAULT_MAX_PER_ROUTE = 2;
-
+	private static final String TAG = BasicRightRequest.class.getSimpleName();
 	protected int maxTotal = DEFAULT_MAX_TOTAL;
 	protected int maxPerRoute = DEFAULT_MAX_PER_ROUTE;
 	protected Registry<ConnectionSocketFactory> socketFactoryRegistry;
@@ -41,7 +43,13 @@ public class BasicRightRequest implements RightRequest {
 	public BasicRightRequest(int maxTotal, int maxPerRoute) {
 		this.maxTotal = maxTotal;
 		this.maxPerRoute = maxPerRoute;
-        initSocketFactory();
+		initSocketFactory();
+	}
+
+	private static HttpPut getPutHeaderToken(String url, Header header) {
+		HttpPut put = new HttpPut(url);
+		put.setHeader(header);
+		return put;
 	}
 
 	private void initSocketFactory() {
@@ -79,7 +87,6 @@ public class BasicRightRequest implements RightRequest {
 		HttpClient httpClient = getHttpClient();
 		return httpClient.execute(get);
 	}
-
 
 	//POST methods
 	@Override
@@ -143,6 +150,8 @@ public class BasicRightRequest implements RightRequest {
 		return httpClient.execute(post);
 	}
 
+	//DELETE methods
+
 	@Override
 	public HttpResponse postHttpResponse(String url, Header header, String json) throws Exception {
 		StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
@@ -152,8 +161,6 @@ public class BasicRightRequest implements RightRequest {
 		HttpClient httpClient = getHttpClient();
 		return httpClient.execute(post);
 	}
-
-	//DELETE methods
 
 	@Override
 	public HttpResponse deleteHttpResponse(String url) throws Exception {
@@ -167,6 +174,85 @@ public class BasicRightRequest implements RightRequest {
 		HttpDelete delete = getDeleteHeaderToken(url, header);
 		HttpClient httpClient = getHttpClient();
 		return httpClient.execute(delete);
+	}
+
+	//PUT methods
+	@Override
+	public HttpResponse putHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception {
+		HttpPut put = getPut(url);
+		put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, String json) throws IOException {
+		StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+		HttpPut put = getPut(url);
+		put.setHeader("Content-Type", "application/json");
+		put.setEntity(entity);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, Header header, String json) throws IOException {
+		StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+		HttpPut put = getPutHeaderToken(url, header);
+		put.setHeader("Content-Type", "application/json");
+		put.setEntity(entity);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception {
+		HttpPut put = getPutHeaderToken(url, headers);
+		put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception {
+		HttpPut put = getPutHeaderToken(url, header);
+		put.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, Header header) throws Exception {
+		HttpPut put = getPutHeaderToken(url, header);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, HttpEntity entity) throws IOException {
+		HttpPut put = getPut(url);
+		put.setEntity(entity);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, Header header, HttpEntity entity) throws Exception {
+		HttpPut put = getPutHeaderToken(url, header);
+		put.setEntity(entity);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
+	}
+
+	@Override
+	public HttpResponse putHttpResponse(String url, StringEntity entity) throws Exception {
+		HttpPut put = getPut(url);
+		put.setHeader("Content-Type", "application/json");
+		entity.setContentEncoding("UTF-8");
+		entity.setContentType("application/json");
+		put.setEntity(entity);
+		HttpClient httpClient = getHttpClient();
+		return httpClient.execute(put);
 	}
 
 	//inner methods
@@ -220,5 +306,16 @@ public class BasicRightRequest implements RightRequest {
 		HttpDelete delete = new HttpDelete(url);
 		delete.setHeader(header);
 		return delete;
+	}
+
+	private HttpPut getPut(String url) {
+		HttpPut put = new HttpPut(url);
+		return put;
+	}
+
+	private HttpPut getPutHeaderToken(String url, Header[] headers) {
+		HttpPut put = new HttpPut(url);
+		put.setHeaders(headers);
+		return put;
 	}
 }

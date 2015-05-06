@@ -41,4 +41,23 @@ public interface RightRequest {
 	HttpResponse deleteHttpResponse(String url) throws Exception;
 
 	HttpResponse deleteHttpResponse(String url, Header header) throws Exception;
+
+	HttpResponse putHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception;
+
+	HttpResponse putHttpResponse(String url, String json) throws Exception;
+
+	HttpResponse putHttpResponse(String url, HttpEntity entity) throws Exception;
+
+	HttpResponse putHttpResponse(String url, StringEntity entity) throws Exception;
+
+	HttpResponse putHttpResponse(String url, Header header, String json) throws Exception;
+
+	HttpResponse putHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception;
+
+	HttpResponse putHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception;
+
+	HttpResponse putHttpResponse(String url, Header header) throws Exception;
+
+	HttpResponse putHttpResponse(String url, Header header, HttpEntity entity) throws Exception;
+
 }
