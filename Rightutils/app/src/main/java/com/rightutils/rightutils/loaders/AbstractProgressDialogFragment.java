@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v7.internal.view.ContextThemeWrapper;
 
 public abstract class AbstractProgressDialogFragment<T> extends DialogFragment implements LoaderCallbacks<T>, OnCancelListener {
 
@@ -43,7 +44,7 @@ public abstract class AbstractProgressDialogFragment<T> extends DialogFragment i
 	public ProgressDialog onCreateDialog(Bundle savedInstanceState) {
 		ProgressDialog progressDialog;
 		if (theme != -1) {
-			progressDialog = new ProgressDialog(getActivity(), theme);
+			progressDialog = new ProgressDialog(new ContextThemeWrapper(getActivity(), theme));
 		} else {
 			progressDialog = new ProgressDialog(getActivity());
 		}

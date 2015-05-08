@@ -49,7 +49,7 @@ public class LoaderActivity extends ActionBarActivity implements View.OnClickLis
 			case R.id.btn_holo_dark:
 				new CustomLoader(this)
 						.setCancelable(false)
-						.setTheme(ProgressDialog.THEME_HOLO_DARK)
+						.setTheme(android.R.style.Theme_Holo_Dialog)
 						.setLoaderListener(new BaseLoaderListener<Boolean>() {
 							@Override
 							public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, Boolean data, BaseLoader<Boolean> loader) {
