@@ -191,3 +191,42 @@ xmlns:font="http://schemas.android.com/apk/res-auto"
 		font:typeface="fonts/Roboto-Regular.ttf"/>
 ```
 
+<h2>LOADERS</h2>
+####How to use:<br>
+First of all you need create the class which extends from BaseLoader<T> class<br>
+``` java
+public class CustomLoader extends BaseLoader<SomeType> {
+
+	private static final String TAG = CustomLoader.class.getSimpleName();
+	private static final int loaderId = 1; // unique identificator in loader manager
+
+	public CustomLoader(FragmentActivity fragmentActivity) {
+		super(fragmentActivity, loaderId);
+	}
+
+	@Override
+	public SomeType loadInBackground() {
+		//TODO something
+		return someType;
+	}
+}
+```
+After that you can use your loader in activities or fragments<br>
+``` java
+new CustomLoader(this)
+	//optional param, 'false' - loader can't be canceled. 'true' - loader can be canceled; by default 'true'
+	.setCancelable(false)
+	//optional param, if need access to fragment after execution
+	.setContainer(LoaderFragment.class)
+	//optional param, you can use standart dialog themes or customs;
+	.setTheme(android.R.style.Theme_Holo_Dialog)
+	.setLoaderListener(new BaseLoaderListener<SomeType>() {
+		@Override
+		public void onLoadFinished(FragmentActivity activity, Fragment fragmentContainer, SomeType data, BaseLoader<SomeType> loader) {
+			//activity - always valid activity, even after rotate screen
+			//fragmentContainer - can be null if setContainer not invoke or fragment was changed
+			//do something with result
+		}
+	})
+	.execute();
+```
