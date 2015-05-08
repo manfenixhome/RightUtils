@@ -6,11 +6,11 @@ Android library for quick development android application.
 ## Quick Setup
 **Gradle dependency RELEASE:**
 ``` groovy
-compile 'com.rightutils:app:1.2.1@aar'
+compile 'com.rightutils:app:1.4.0@aar'
 ```
 **Gradle dependency SNAPSHOT:**
 ``` groovy
-compile 'com.rightutils:app:1.2.9-SNAPSHOT@aar'
+compile 'com.rightutils:app:1.4.0-SNAPSHOT@aar'
 
 repositories {
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -21,7 +21,7 @@ repositories {
 <dependency>
     <groupId>com.rightutils</groupId>
     <artifactId>app</artifactId>
-    <version>1.2.1</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -67,21 +67,6 @@ public class Company {
 	//Use @ColumnIgnore annotation if this field not saving in database
 	private long id;
 	private String name;
-
-	public Company() {
-	}
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 }
 ```
 
@@ -116,51 +101,7 @@ deleteWhere(Company.class, "id", ids)));
 Put custom fonts to assets library.
 <i>NB - "fonts/AFBattersea.ttf" - path and name of font in assets folder. In this case it's mean (assets/fonts/AFBattersea.ttf)</i>
 
-####TypedFaceWidgets (released version)
-<b>Usage examples</b><br>
-Declare font attribute in root layout:
-``` xml
-xmlns:font="http://schemas.android.com/apk/res-auto"
-```
-After that, you can use:<br>
-<i>TextView with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedTextView
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>EditText with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedEditText
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>Button with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedButton
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>RadioButton with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedRadioButton
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>CheckBox with custom fonts</i>
-``` xml
-<com.rightutils.rightutils.widgets.TypefacedCheckbox
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	font:typeface="fonts/AFBattersea.ttf"/>
-```
-<i>NB - "fonts/Roboto-Light.ttf" - path and name of font in assets folder. In this case it's mean (assets/fonts/AFBattersea.ttf)</i>
-
-####TypeFaceWidgets (snapshot)
+####TypeFaceWidgets
 
 #####1) Specify the same typeface for all widgets in application theme.
 ``` xml
