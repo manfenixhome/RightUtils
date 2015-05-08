@@ -230,3 +230,73 @@ new CustomLoader(this)
 	})
 	.execute();
 ```
+<h2>REQUEST</h2>
+Requests for REST API which support SNI
+####How to use:<br>
+By default you can use basic implementation RightRequest interface - BasicRightRequest which contains several type of requests:
+``` java
+HttpResponse getHttpResponse(String url) throws Exception;
+
+HttpResponse getHttpResponse(String url, RequestConfig config) throws Exception;
+
+HttpResponse getHttpResponse(String url, Header[] headers) throws Exception;
+
+HttpResponse getHttpResponse(String url, Header header) throws Exception;
+
+HttpResponse postHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse postHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse postHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse postHttpResponse(String url, HttpEntity entity) throws Exception;
+
+HttpResponse postHttpResponse(String url, Header header, HttpEntity entity) throws Exception;
+
+HttpResponse postHttpResponse(String url, StringEntity entity) throws Exception;
+
+HttpResponse postHttpResponse(String url, String json) throws Exception;
+
+HttpResponse postHttpResponse(String url, Header header, String json) throws Exception;
+
+HttpResponse deleteHttpResponse(String url) throws Exception;
+
+HttpResponse deleteHttpResponse(String url, Header header) throws Exception;
+
+HttpResponse putHttpResponse(String url, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse putHttpResponse(String url, String json) throws Exception;
+
+HttpResponse putHttpResponse(String url, HttpEntity entity) throws Exception;
+
+HttpResponse putHttpResponse(String url, StringEntity entity) throws Exception;
+
+HttpResponse putHttpResponse(String url, Header header, String json) throws Exception;
+
+HttpResponse putHttpResponse(String url, Header[] headers, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse putHttpResponse(String url, Header header, List<NameValuePair> nameValuePairs) throws Exception;
+
+HttpResponse putHttpResponse(String url, Header header) throws Exception;
+
+HttpResponse putHttpResponse(String url, Header header, HttpEntity entity) throws Exception;
+```
+But if you need some another type of request you can create your class which extends from BasicRightRequest class and add you methods there.
+
+Usage example:
+``` java
+@Override
+protected String doInBackground(Void... params) {
+	try {
+		HttpResponse response = new BasicRightRequest().getHttpResponse(PROFILE_URL, new BasicHeader("Authorization", cache.getAuthToken()));
+		int status = response.getStatusLine().getStatusCode();
+		Log.i(TAG, "status code: " + String.valueOf(status));
+		if (status == HttpStatus.SC_OK) {
+			return EntityUtils.toString(response.getEntity());
+		}
+	} catch (Exception e) {
+		Log.e(TAG, "run", e);
+	}
+	return null;
+}
+```
