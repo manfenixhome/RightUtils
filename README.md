@@ -1,6 +1,6 @@
 RightUtils
 ==========
-Library which doing more easy development application for android. The library contains part for working with db, some widgets, requests for REST API and other tasty features.
+Android library which doing more easy development application for android. The library contains part for working with db, some widgets, requests for REST API and other tasty features.
 
 ## Quick Setup
 **Gradle dependency RELEASE:**
