@@ -3,9 +3,14 @@ package com.rightutils.rightutils.loaders;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -18,24 +23,30 @@ public abstract class AbstractProgressDialogFragment<T> extends DialogFragment i
 	protected abstract void onCancelLoad();
 	private final Handler handler = new Handler();
 	private String message;
+	private int theme = -1;
 	private int loaderId;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
-		
 		LoaderManager loaderManager = getLoaderManager();
 		if (loaderManager.getLoader(loaderId) != null) {
 			loaderManager.initLoader(loaderId, null, this);
-		}else{
+		} else {
 	        startLoading();
 		}
 	}
 
+	@NonNull
 	@Override
 	public ProgressDialog onCreateDialog(Bundle savedInstanceState) {
-		ProgressDialog progressDialog = new ProgressDialog(getActivity());
+		ProgressDialog progressDialog;
+		if (theme != -1) {
+			progressDialog = new ProgressDialog(getActivity(), theme);
+		} else {
+			progressDialog = new ProgressDialog(getActivity());
+		}
 		progressDialog.setMessage(message);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		progressDialog.setOnCancelListener(this);
@@ -105,5 +116,17 @@ public abstract class AbstractProgressDialogFragment<T> extends DialogFragment i
 
 	public void setLoaderId(int loaderId) {
 		this.loaderId = loaderId;
+	}
+
+	protected static Fragment getFragmentByTag(FragmentActivity fragmentActivity, String tag) {
+
+		if (fragmentActivity.getSupportFragmentManager().getBackStackEntryCount() == 0) {
+			return null;
+		}
+		return fragmentActivity.getSupportFragmentManager().findFragmentByTag(tag);
+	}
+
+	public void setTheme(int theme) {
+		this.theme = theme;
 	}
 }

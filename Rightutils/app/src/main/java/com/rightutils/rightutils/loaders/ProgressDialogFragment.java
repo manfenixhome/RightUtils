@@ -57,14 +57,6 @@ public class ProgressDialogFragment<T> extends AbstractProgressDialogFragment<T>
 		}
 	}
 
-	private static Fragment getFragmentByTag(FragmentActivity fragmentActivity, String tag) {
-
-		if (fragmentActivity.getSupportFragmentManager().getBackStackEntryCount() == 0) {
-			return null;
-		}
-		return fragmentActivity.getSupportFragmentManager().findFragmentByTag(tag);
-	}
-
 	public static class Builder<T> {
 		FragmentActivity fa;
 		BaseLoader<T> loader;
@@ -72,12 +64,14 @@ public class ProgressDialogFragment<T> extends AbstractProgressDialogFragment<T>
 		Boolean cancelable;
 		String progressMsg;
 		int loaderId;
+		int theme;
 
-		public Builder(FragmentActivity fragmentActivity, BaseLoader<T> loader, String progressMsg, int loaderId) {
+		public Builder(FragmentActivity fragmentActivity, BaseLoader<T> loader, String progressMsg, int loaderId, int theme) {
 			this.fa = fragmentActivity;
 			this.loader = loader;
 			this.progressMsg = progressMsg;
 			this.loaderId = loaderId;
+			this.theme = theme;
 		}
 
 		public Builder<T> setTaskLoaderListener(LoaderListener<T> taskLoaderListener) {
@@ -103,6 +97,7 @@ public class ProgressDialogFragment<T> extends AbstractProgressDialogFragment<T>
 			ProgressDialogFragment fragment = newInstance(loader, progressMsg, loaderId);
 			fragment.setTaskLoaderListener(taskLoaderListener);
 			fragment.setCancelable(cancelable);
+			fragment.setTheme(theme);
 
 			fragment.show(ft, TAG_FRAGMENT);
 

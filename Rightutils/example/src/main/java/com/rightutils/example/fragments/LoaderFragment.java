@@ -28,13 +28,13 @@ public class LoaderFragment extends Fragment implements View.OnClickListener {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		view.findViewById(R.id.btn_start_loader).setOnClickListener(this);
+		view.findViewById(R.id.btn_default_theme).setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-			case R.id.btn_start_loader:
+			case R.id.btn_default_theme:
 				new CustomLoader(getActivity())
 						.setCancelable(false)
 						.setContainer(LoaderFragment.class)

@@ -15,6 +15,7 @@ public abstract class BaseLoader<T> extends AsyncTaskLoader<T> {
 	private String message = DEFAULT_MESSAGE;
 	private final int loaderId;
 	private Class<? extends Fragment> container;
+	private int theme = -1;
 
 	public BaseLoader(FragmentActivity fragmentActivity, int loaderId) {
 		super(fragmentActivity);
@@ -26,7 +27,7 @@ public abstract class BaseLoader<T> extends AsyncTaskLoader<T> {
 		Fragment lastFragment = getLastFragment(fragmentActivity);
 		if (lastFragment == null || lastFragment.getLoaderManager().getLoader(loaderId) == null) {
 
-			new ProgressDialogFragment.Builder<T>(fragmentActivity, this, message, loaderId)
+			new ProgressDialogFragment.Builder<T>(fragmentActivity, this, message, loaderId, theme)
 					.setCancelable(cancelable)
 					.setTaskLoaderListener(loaderListener)
 					.show();
@@ -87,6 +88,11 @@ public abstract class BaseLoader<T> extends AsyncTaskLoader<T> {
 
 	public BaseLoader<T> setContainer(Class<? extends Fragment> container) {
 		this.container = container;
+		return this;
+	}
+
+	public BaseLoader<T> setTheme(int theme) {
+		this.theme = theme;
 		return this;
 	}
 }

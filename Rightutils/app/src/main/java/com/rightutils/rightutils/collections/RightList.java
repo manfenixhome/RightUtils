@@ -1,5 +1,8 @@
 package com.rightutils.rightutils.collections;
 
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -127,6 +130,7 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 		return this.get(0);
 	}
 
+	@NonNull
 	public RightList<T> subList(int start, int end) {
 		return RightList.asRightList(super.subList(start, end));
 	}
@@ -134,5 +138,6 @@ public class RightList<T> extends ArrayList<T> implements Serializable {
 	public RightList<T> subList(int start) {
 		return RightList.asRightList(super.subList(start, size()));
 	}
+
 
 }

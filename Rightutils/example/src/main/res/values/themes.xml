@@ -4,4 +4,8 @@
 		<!--<item name="customTypefaceStyle">@style/TypefaceStyle</item>-->
 		<item name="android:textViewStyle">@style/TextViewStyle</item>
 	</style>
+
+	<style name="CustomLoaderTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+		<item name="colorAccent">#0000FF</item>
+	</style>
 </resources>
