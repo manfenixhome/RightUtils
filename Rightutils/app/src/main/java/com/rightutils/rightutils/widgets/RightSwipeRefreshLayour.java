@@ -105,9 +105,13 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	private Animation topScaleDownAnimation;
 
-	private Animation mAlphaStartAnimation;
+	private Animation mTopAlphaStartAnimation;
 
-	private Animation mAlphaMaxAnimation;
+	private Animation mBottomAlphaStartAnimation;
+
+	private Animation mTopAlphaMaxAnimation;
+
+	private Animation mBottomAlphaMaxAnimation;
 
 	private Animation mScaleDownToStartAnimation;
 
@@ -450,15 +454,23 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		topCircleView.startAnimation(topScaleDownAnimation);
 	}
 
-	private void startProgressAlphaStartAnimation() {
-		mAlphaStartAnimation = startAlphaAnimation(topProgress.getAlpha(), STARTING_PROGRESS_ALPHA);
+	private void startTopProgressAlphaStartAnimation() {
+		mTopAlphaStartAnimation = startTopAlphaAnimation(topProgress.getAlpha(), STARTING_PROGRESS_ALPHA);
 	}
 
-	private void startProgressAlphaMaxAnimation() {
-		mAlphaMaxAnimation = startAlphaAnimation(topProgress.getAlpha(), MAX_ALPHA);
+	private void startBottomProgressAlphaStartAnimation() {
+		mBottomAlphaStartAnimation = startBottomAlphaAnimation(bottomProgress.getAlpha(), STARTING_PROGRESS_ALPHA);
 	}
 
-	private Animation startAlphaAnimation(final int startingAlpha, final int endingAlpha) {
+	private void startTopProgressAlphaMaxAnimation() {
+		mTopAlphaMaxAnimation = startTopAlphaAnimation(topProgress.getAlpha(), MAX_ALPHA);
+	}
+
+	private void startBottomProgressAlphaMaxAnimation() {
+		mBottomAlphaMaxAnimation = startBottomAlphaAnimation(bottomProgress.getAlpha(), MAX_ALPHA);
+	}
+
+	private Animation startTopAlphaAnimation(final int startingAlpha, final int endingAlpha) {
 		// Pre API 11, alpha is used in place of scale. Don't also use it to
 		// show the trigger point.
 		if (mScale && isAlphaUsedForScale()) {
@@ -477,6 +489,28 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		topCircleView.setAnimationListener(null);
 		topCircleView.clearAnimation();
 		topCircleView.startAnimation(alpha);
+		return alpha;
+	}
+
+	private Animation startBottomAlphaAnimation(final int startingAlpha, final int endingAlpha) {
+		// Pre API 11, alpha is used in place of scale. Don't also use it to
+		// show the trigger point.
+		if (mScale && isAlphaUsedForScale()) {
+			return null;
+		}
+		Animation alpha = new Animation() {
+			@Override
+			public void applyTransformation(float interpolatedTime, Transformation t) {
+				bottomProgress
+						.setAlpha((int) (startingAlpha + ((endingAlpha - startingAlpha)
+								* interpolatedTime)));
+			}
+		};
+		alpha.setDuration(ALPHA_ANIMATION_DURATION);
+		// Clear out the previous animation listeners.
+		bottomCircleView.setAnimationListener(null);
+		bottomCircleView.clearAnimation();
+		bottomCircleView.startAnimation(alpha);
 		return alpha;
 	}
 
@@ -746,8 +780,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				}
 
 				final float y = MotionEventCompat.getY(ev, pointerIndex);
-				final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
 				if (mIsTopBeingDragged) {
+					final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
 					topProgress.showArrow(true);
 					float originalDragPercent = overscrollTop / mTotalDragDistance;
 					if (originalDragPercent < 0) {
@@ -762,7 +796,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					float extraMove = (slingshotDist) * tensionPercent * 2;
 
 					int targetY = mOriginalOffsetTop + (int) ((slingshotDist * dragPercent) + extraMove);
-					Log.i(TAG, "targetY=" + targetY);
 					// where 1.0f is a full circle
 					if (topCircleView.getVisibility() != View.VISIBLE) {
 						topCircleView.setVisibility(View.VISIBLE);
@@ -771,21 +804,23 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						ViewCompat.setScaleX(topCircleView, 1f);
 						ViewCompat.setScaleY(topCircleView, 1f);
 					}
+					Log.i(TAG, "overscrollTop="+overscrollTop);
+					Log.i(TAG, "mTotalDragDistance="+mTotalDragDistance);
 					if (overscrollTop < mTotalDragDistance) {
 						if (mScale) {
 							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
 						}
-						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA && !isAnimationRunning(mAlphaStartAnimation)) {
+						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA && !isAnimationRunning(mTopAlphaStartAnimation)) {
 							// Animate the alpha
-							startProgressAlphaStartAnimation();
+							startTopProgressAlphaStartAnimation();
 						}
 						float strokeStart = (float) (adjustedPercent * .8f);
 						topProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
 						topProgress.setArrowScale(Math.min(1f, adjustedPercent));
 					} else {
-						if (topProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
+						if (topProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mTopAlphaMaxAnimation)) {
 							// Animate the alpha
-							startProgressAlphaMaxAnimation();
+							startTopProgressAlphaMaxAnimation();
 						}
 					}
 					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
@@ -793,22 +828,22 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					setTopTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop, true /* requires update */);
 				}
 				if (mIsBottomBeingDragged) {
+					final float overscrollBottom = (y - mInitialMotionY) * DRAG_RATE;
 					bottomProgress.showArrow(true);
-					float originalDragPercent = overscrollTop / mTotalDragDistance;
+					float originalDragPercent = overscrollBottom / mTotalDragDistance;
 					if (originalDragPercent > 0) {
 						return false;
 					}
 					float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
 					float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
-					float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
+					float extraOS = Math.abs(overscrollBottom) - mTotalDragDistance;
 					float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset - mOriginalOffsetBottom : mSpinnerFinalOffset;
 					float tensionSlingshotPercent = Math.max(0, Math.min(extraOS, slingshotDist * 2) / slingshotDist);
 					float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow((tensionSlingshotPercent / 4), 2)) * 2f;
 					float extraMove = (slingshotDist) * tensionPercent * 2;
 
 					int targetY = mOriginalOffsetBottom - (int) ((slingshotDist * dragPercent) + extraMove);
-					Log.i(TAG, "targetY=" + targetY);
-//					// where 1.0f is a full circle
+					// where 1.0f is a full circle
 					if (bottomCircleView.getVisibility() != View.VISIBLE) {
 						bottomCircleView.setVisibility(View.VISIBLE);
 					}
@@ -816,29 +851,27 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						ViewCompat.setScaleX(bottomCircleView, 1f);
 						ViewCompat.setScaleY(bottomCircleView, 1f);
 					}
-//					if (overscrollTop < mTotalDragDistance) {
-//						if (mScale) {
-//							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
-//						}
-//						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA
-//								&& !isAnimationRunning(mAlphaStartAnimation)) {
-//							// Animate the alpha
-//							startProgressAlphaStartAnimation();
-//						}
-//						float strokeStart = (float) (adjustedPercent * .8f);
-//						topProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
-//						topProgress.setArrowScale(Math.min(1f, adjustedPercent));
-//					} else {
-//						if (topProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
-//							// Animate the alpha
-//							startProgressAlphaMaxAnimation();
-//						}
-//					}
-//					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
-//					bottomProgress.setProgressRotation(rotation);
-					Log.i(TAG, "targetY=" +targetY);
-					Log.i(TAG, "mCurrentTargetOffsetBottom=" +mCurrentTargetOffsetBottom);
-					Log.i(TAG, "targetY - mCurrentTargetOffsetBottom="+(targetY - mCurrentTargetOffsetBottom));
+					Log.i(TAG, "overscrollBottom="+overscrollBottom);
+					Log.i(TAG, "mTotalDragDistance="+mTotalDragDistance);
+					if (Math.abs(overscrollBottom) < mTotalDragDistance) {
+						if (mScale) {
+							setBottomAnimationProgress(overscrollBottom / mTotalDragDistance);
+						}
+						if (bottomProgress.getAlpha() > STARTING_PROGRESS_ALPHA && !isAnimationRunning(mBottomAlphaStartAnimation)) {
+							// Animate the alpha
+							startBottomProgressAlphaStartAnimation();
+						}
+						float strokeStart = (float) (adjustedPercent * .8f);
+						bottomProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
+						bottomProgress.setArrowScale(Math.min(1f, adjustedPercent));
+					} else {
+						if (bottomProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mBottomAlphaMaxAnimation)) {
+							// Animate the alpha
+							startBottomProgressAlphaMaxAnimation();
+						}
+					}
+					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
+					bottomProgress.setProgressRotation(rotation);
 					setBottomTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetBottom, true /* requires update */);
 				}
 				break;
@@ -963,8 +996,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 	};
 
-	private void startScaleDownReturnToStartAnimation(int from,
-													  Animation.AnimationListener listener) {
+	private void startScaleDownReturnToStartAnimation(int from, Animation.AnimationListener listener) {
 		mFrom = from;
 		if (isAlphaUsedForScale()) {
 			mStartingScale = topProgress.getAlpha();
