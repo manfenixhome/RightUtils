@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
@@ -16,7 +17,7 @@ import com.rightutils.rightutils.loaders.BaseLoaderListener;
 /**
  * Created by Anton Maniskevich on 3/31/15.
  */
-public class LoaderActivity extends ActionBarActivity implements View.OnClickListener {
+public class LoaderActivity extends AppCompatActivity implements View.OnClickListener {
 
 	private static final String TAG = LoaderActivity.class.getSimpleName();
 
@@ -27,7 +28,6 @@ public class LoaderActivity extends ActionBarActivity implements View.OnClickLis
 		findViewById(R.id.btn_default_theme).setOnClickListener(this);
 		findViewById(R.id.btn_holo_dark).setOnClickListener(this);
 		findViewById(R.id.btn_custom_theme).setOnClickListener(this);
-
 	}
 
 	@Override

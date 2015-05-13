@@ -19,6 +19,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		findViewById(R.id.btn_custom_font_activity).setOnClickListener(this);
 		findViewById(R.id.btn_loader_activity).setOnClickListener(this);
 		findViewById(R.id.btn_fragment_loader).setOnClickListener(this);
+		findViewById(R.id.btn_right_refresh).setOnClickListener(this);
 	}
 
 	@Override
@@ -32,6 +33,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 				break;
 			case R.id.btn_fragment_loader:
 				startActivity(new Intent(MainActivity.this, FragmentLoaderActivity.class));
+				break;
+			case R.id.btn_right_refresh:
+				startActivity(new Intent(MainActivity.this, RightSwipeRefreshActivity.class));
 				break;
 		}
 	}

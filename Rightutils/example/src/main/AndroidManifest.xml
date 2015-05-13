@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-		  package="com.rightutils.example">
+<manifest package="com.rightutils.example"
+		  xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<application
 		android:name=".applications.ExampleApplication"
@@ -10,8 +10,8 @@
 		android:theme="@style/AppTheme">
 		<activity
 			android:name=".activities.MainActivity"
-			android:theme="@style/AppTheme"
-			android:label="RightUtils examples">
+			android:label="RightUtils examples"
+			android:theme="@style/AppTheme">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 
@@ -25,11 +25,13 @@
 				  android:label="LoaderActivity"/>
 		<activity android:name=".activities.FragmentLoaderActivity"
 				  android:label="FragmentLoaderActivity"/>
+		<activity android:name=".activities.RightSwipeRefreshActivity"
+				  android:label="RightSwipeRefreshActivity"/>
 		<uses-library android:name="android.test.runner"/>
 	</application>
 
 	<instrumentation android:name="android.test.InstrumentationTestRunner"
-					 android:targetPackage="com.rightutils.example.activities"
-					 android:label="Tests for com.rightutils.example.activities.MainActivity"/>
+					 android:label="Tests for com.rightutils.example.activities.MainActivity"
+					 android:targetPackage="com.rightutils.example.activities"/>
 
 </manifest>

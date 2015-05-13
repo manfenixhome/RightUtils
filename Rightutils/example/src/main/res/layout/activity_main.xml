@@ -24,4 +24,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"/>
 
+	<com.rightutils.rightutils.widgets.TypefaceButton
+		android:id="@+id/btn_right_refresh"
+		android:text="Right swipe refresh"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
 </LinearLayout>
