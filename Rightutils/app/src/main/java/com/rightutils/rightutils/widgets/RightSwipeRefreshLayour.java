@@ -3,6 +3,7 @@ package com.rightutils.rightutils.widgets;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.support.annotation.IntDef;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -62,6 +63,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private float mTotalDragDistance = -1;
 	private int mMediumAnimationDuration;
 	private int mCurrentTargetOffsetTop;
+	private int mCurrentTargetOffsetBottom;
 	// Whether or not the starting offset has been determined.
 	private boolean mOriginalOffsetCalculated = false;
 
@@ -80,8 +82,11 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	};
 
 	private CircleImageView topCircleView;
+
 	private CircleImageView bottomCircleView;
+
 	private int topCircleViewIndex = -1;
+
 	private int bottomCircleViewIndex = -1;
 
 	protected int mFrom;
@@ -89,13 +94,15 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private float mStartingScale;
 
 	protected int mOriginalOffsetTop;
+	protected int mOriginalOffsetBottom;
 
 	private MaterialProgressDrawable topProgress;
+
 	private MaterialProgressDrawable bottomProgress;
 
-	private Animation mScaleAnimation;
+	private Animation topScaleAnimation;
 
-	private Animation mScaleDownAnimation;
+	private Animation topScaleDownAnimation;
 
 	private Animation mAlphaStartAnimation;
 
@@ -114,7 +121,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	// Whether the client has set a custom starting position;
 	private boolean mUsingCustomStart;
 
-	private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
+	private Animation.AnimationListener topRefreshListener = new Animation.AnimationListener() {
 		@Override
 		public void onAnimationStart(Animation animation) {
 		}
@@ -131,28 +138,68 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				topProgress.start();
 				if (mNotify) {
 					if (mListener != null) {
-						mListener.onRefresh();
+						mListener.onRefresh(TOP_REFRESH);
 					}
 				}
 			} else {
 				topProgress.stop();
 				topCircleView.setVisibility(View.GONE);
-				setColorViewAlpha(MAX_ALPHA);
+				setTopColorViewAlpha(MAX_ALPHA);
 				// Return the circle to its start position
 				if (mScale) {
-					setAnimationProgress(0 /* animation complete and view is hidden */);
+					setTopAnimationProgress(0 /* animation complete and view is hidden */);
 				} else {
-					setTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop,
-							true /* requires update */);
+					setTopTargetOffsetTopAndBottom(mOriginalOffsetTop - mCurrentTargetOffsetTop, true /* requires update */);
 				}
 			}
 			mCurrentTargetOffsetTop = topCircleView.getTop();
 		}
 	};
 
-	private void setColorViewAlpha(int targetAlpha) {
+	private Animation.AnimationListener bottomRefreshListener = new Animation.AnimationListener() {
+		@Override
+		public void onAnimationStart(Animation animation) {
+		}
+
+		@Override
+		public void onAnimationRepeat(Animation animation) {
+		}
+
+		@Override
+		public void onAnimationEnd(Animation animation) {
+			if (mRefreshing) {
+				// Make sure the progress view is fully visible
+				bottomProgress.setAlpha(MAX_ALPHA);
+				bottomProgress.start();
+				if (mNotify) {
+					if (mListener != null) {
+						mListener.onRefresh(BOTTOM_REFRESH);
+					}
+				}
+			} else {
+				bottomProgress.stop();
+				bottomCircleView.setVisibility(View.GONE);
+				setBottomColorViewAlpha(MAX_ALPHA);
+				// Return the circle to its start position
+				if (mScale) {
+					//TODO
+					setBottomAnimationProgress(0 /* animation complete and view is hidden */);
+				} else {
+					setBottomTargetOffsetTopAndBottom(mOriginalOffsetBottom - mCurrentTargetOffsetBottom, true /* requires update */);
+				}
+			}
+			mCurrentTargetOffsetBottom = bottomCircleView.getTop();
+		}
+	};
+
+	private void setTopColorViewAlpha(int targetAlpha) {
 		topCircleView.getBackground().setAlpha(targetAlpha);
 		topProgress.setAlpha(targetAlpha);
+	}
+
+	private void setBottomColorViewAlpha(int targetAlpha) {
+		bottomCircleView.getBackground().setAlpha(targetAlpha);
+		bottomProgress.setAlpha(targetAlpha);
 	}
 
 	/**
@@ -324,9 +371,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			} else {
 				endTarget = (int) mSpinnerFinalOffset;
 			}
-			setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop, true /* requires update */);
+			setTopTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop, true /* requires update */);
 			mNotify = false;
-			startScaleUpAnimation(mRefreshListener);
+			startScaleUpAnimation(topRefreshListener);
 		} else {
 			setRefreshing(refreshing, false /* notify */);
 		}
@@ -340,30 +387,39 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			// Don't adjust the alpha during appearance otherwise.
 			topProgress.setAlpha(MAX_ALPHA);
 		}
-		mScaleAnimation = new Animation() {
+		topScaleAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
-				setAnimationProgress(interpolatedTime);
+				setTopAnimationProgress(interpolatedTime);
 			}
 		};
-		mScaleAnimation.setDuration(mMediumAnimationDuration);
+		topScaleAnimation.setDuration(mMediumAnimationDuration);
 		if (listener != null) {
 			topCircleView.setAnimationListener(listener);
 		}
 		topCircleView.clearAnimation();
-		topCircleView.startAnimation(mScaleAnimation);
+		topCircleView.startAnimation(topScaleAnimation);
 	}
 
 	/**
 	 * Pre API 11, this does an alpha animation.
 	 * @param progress
 	 */
-	private void setAnimationProgress(float progress) {
+	private void setTopAnimationProgress(float progress) {
 		if (isAlphaUsedForScale()) {
-			setColorViewAlpha((int) (progress * MAX_ALPHA));
+			setTopColorViewAlpha((int) (progress * MAX_ALPHA));
 		} else {
 			ViewCompat.setScaleX(topCircleView, progress);
 			ViewCompat.setScaleY(topCircleView, progress);
+		}
+	}
+
+	private void setBottomAnimationProgress(float progress) {
+		if (isAlphaUsedForScale()) {
+			setBottomColorViewAlpha((int) (progress * MAX_ALPHA));
+		} else {
+			ViewCompat.setScaleX(bottomCircleView, progress);
+			ViewCompat.setScaleY(bottomCircleView, progress);
 		}
 	}
 
@@ -373,24 +429,24 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			ensureTarget();
 			mRefreshing = refreshing;
 			if (mRefreshing) {
-				animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, mRefreshListener);
+				animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, topRefreshListener);
 			} else {
-				startScaleDownAnimation(mRefreshListener);
+				startScaleDownAnimation(topRefreshListener);
 			}
 		}
 	}
 
 	private void startScaleDownAnimation(Animation.AnimationListener listener) {
-		mScaleDownAnimation = new Animation() {
+		topScaleDownAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
-				setAnimationProgress(1 - interpolatedTime);
+				setTopAnimationProgress(1 - interpolatedTime);
 			}
 		};
-		mScaleDownAnimation.setDuration(SCALE_DOWN_DURATION);
+		topScaleDownAnimation.setDuration(SCALE_DOWN_DURATION);
 		topCircleView.setAnimationListener(listener);
 		topCircleView.clearAnimation();
-		topCircleView.startAnimation(mScaleDownAnimation);
+		topCircleView.startAnimation(topScaleDownAnimation);
 	}
 
 	private void startProgressAlphaStartAnimation() {
@@ -535,9 +591,12 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 		mTarget.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));
 		topCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
+		bottomCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(mCircleHeight, MeasureSpec.EXACTLY));
 		if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
+			//TODO
+			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getHeight();
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
@@ -588,7 +647,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
-				setTargetOffsetTopAndBottom(mOriginalOffsetTop - topCircleView.getTop(), true);
+				setTopTargetOffsetTopAndBottom(mOriginalOffsetTop - topCircleView.getTop(), true);
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 				mIsBeingDragged = false;
 				final float initialMotionY = getMotionEventY(ev, mActivePointerId);
@@ -702,7 +761,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					}
 					if (overscrollTop < mTotalDragDistance) {
 						if (mScale) {
-							setAnimationProgress(overscrollTop / mTotalDragDistance);
+							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
 						}
 						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA
 								&& !isAnimationRunning(mAlphaStartAnimation)) {
@@ -721,7 +780,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					}
 					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
 					topProgress.setProgressRotation(rotation);
-					setTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop,
+					setTopTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop,
 							true /* requires update */);
 				}
 				break;
@@ -827,7 +886,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			}
 			targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
 			int offset = targetTop - topCircleView.getTop();
-			setTargetOffsetTopAndBottom(offset, false /* requires update */);
+			setTopTargetOffsetTopAndBottom(offset, false /* requires update */);
 		}
 	};
 
@@ -835,7 +894,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		int targetTop = 0;
 		targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
 		int offset = targetTop - topCircleView.getTop();
-		setTargetOffsetTopAndBottom(offset, false /* requires update */);
+		setTopTargetOffsetTopAndBottom(offset, false /* requires update */);
 	}
 
 	private final Animation mAnimateToStartPosition = new Animation() {
@@ -857,7 +916,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				float targetScale = (mStartingScale + (-mStartingScale  * interpolatedTime));
-				setAnimationProgress(targetScale);
+				setTopAnimationProgress(targetScale);
 				moveToStart(interpolatedTime);
 			}
 		};
@@ -869,10 +928,19 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		topCircleView.startAnimation(mScaleDownToStartAnimation);
 	}
 
-	private void setTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
+	private void setTopTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
 		topCircleView.bringToFront();
 		topCircleView.offsetTopAndBottom(offset);
 		mCurrentTargetOffsetTop = topCircleView.getTop();
+		if (requiresUpdate && android.os.Build.VERSION.SDK_INT < 11) {
+			invalidate();
+		}
+	}
+
+	private void setBottomTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
+		bottomCircleView.bringToFront();
+		bottomCircleView.offsetTopAndBottom(offset);
+		mCurrentTargetOffsetBottom = bottomCircleView.getTop();
 		if (requiresUpdate && android.os.Build.VERSION.SDK_INT < 11) {
 			invalidate();
 		}
@@ -893,7 +961,14 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	 * Classes that wish to be notified when the swipe gesture correctly
 	 * triggers a refresh should implement this interface.
 	 */
+	public static final int TOP_REFRESH = 100;
+	public static final int BOTTOM_REFRESH = 200;
+
+	@IntDef({TOP_REFRESH, BOTTOM_REFRESH})
+	public @interface RefreshType {}
+
 	public interface OnRefreshListener {
-		public void onRefresh();
+		public void onRefresh(@RefreshType int refreshType);
 	}
+
 }
