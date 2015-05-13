@@ -27,7 +27,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	// Maps to ProgressBar default style
 	public static final int DEFAULT = MaterialProgressDrawable.DEFAULT;
 
-	private static final String LOG_TAG = RightSwipeRefreshLayour.class.getSimpleName();
+	private static final String TAG = RightSwipeRefreshLayour.class.getSimpleName();
 
 	private static final int MAX_ALPHA = 255;
 	private static final int STARTING_PROGRESS_ALPHA = (int) (.3f * MAX_ALPHA);
@@ -68,7 +68,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private boolean mOriginalOffsetCalculated = false;
 
 	private float mInitialMotionY;
-	private boolean mIsBeingDragged;
+	private boolean mIsTopBeingDragged;
+	private boolean mIsBottomBeingDragged;
 	private int mActivePointerId = INVALID_POINTER;
 	// Whether this item is scaled up rather than clipped
 	private boolean mScale;
@@ -373,13 +374,13 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			}
 			setTopTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop, true /* requires update */);
 			mNotify = false;
-			startScaleUpAnimation(topRefreshListener);
+			startTopScaleUpAnimation(topRefreshListener);
 		} else {
 			setRefreshing(refreshing, false /* notify */);
 		}
 	}
 
-	private void startScaleUpAnimation(Animation.AnimationListener listener) {
+	private void startTopScaleUpAnimation(Animation.AnimationListener listener) {
 		topCircleView.setVisibility(View.VISIBLE);
 		if (android.os.Build.VERSION.SDK_INT >= 11) {
 			// Pre API 11, alpha is used in place of scale up to show the
@@ -431,12 +432,12 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			if (mRefreshing) {
 				animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, topRefreshListener);
 			} else {
-				startScaleDownAnimation(topRefreshListener);
+				startTopScaleDownAnimation(topRefreshListener);
 			}
 		}
 	}
 
-	private void startScaleDownAnimation(Animation.AnimationListener listener) {
+	private void startTopScaleDownAnimation(Animation.AnimationListener listener) {
 		topScaleDownAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
@@ -578,6 +579,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		int circleWidth = topCircleView.getMeasuredWidth();
 		int circleHeight = topCircleView.getMeasuredHeight();
 		topCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop, (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
+		bottomCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetBottom, (width / 2 + circleWidth / 2), mCurrentTargetOffsetBottom + circleHeight);
 	}
 
 	@Override
@@ -596,7 +598,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
 			//TODO
-			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getHeight();
+			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() + bottomCircleView.getMeasuredHeight();
+			Log.i(TAG, "mTarget.getMeasuredHeight()="+mTarget.getMeasuredHeight());
+			Log.i(TAG, "mCurrentTargetOffsetBottom="+mCurrentTargetOffsetBottom);
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
@@ -647,9 +651,11 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
+				Log.i(TAG, "ACTION_DOWN");
 				setTopTargetOffsetTopAndBottom(mOriginalOffsetTop - topCircleView.getTop(), true);
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-				mIsBeingDragged = false;
+				mIsTopBeingDragged = false;
+				mIsBottomBeingDragged = false;
 				final float initialMotionY = getMotionEventY(ev, mActivePointerId);
 				if (initialMotionY == -1) {
 					return false;
@@ -657,8 +663,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				mInitialMotionY = initialMotionY;
 
 			case MotionEvent.ACTION_MOVE:
+				Log.i(TAG, "ACTION_MOVE");
 				if (mActivePointerId == INVALID_POINTER) {
-					Log.e(LOG_TAG, "Got ACTION_MOVE event but don't have an active pointer id.");
+					Log.e(TAG, "Got ACTION_MOVE event but don't have an active pointer id.");
 					return false;
 				}
 
@@ -667,9 +674,13 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					return false;
 				}
 				final float yDiff = y - mInitialMotionY;
-				if (yDiff > mTouchSlop && !mIsBeingDragged) {
-					mIsBeingDragged = true;
+				Log.i(TAG, "ACTION_MOVE="+yDiff);
+				if (yDiff > mTouchSlop && !mIsTopBeingDragged) {
+					mIsTopBeingDragged = true;
 					topProgress.setAlpha(STARTING_PROGRESS_ALPHA);
+				} else if (Math.abs(yDiff) > mTouchSlop && !mIsBottomBeingDragged) {
+					mIsBottomBeingDragged = true;
+					bottomProgress.setAlpha(STARTING_PROGRESS_ALPHA);
 				}
 				break;
 
@@ -679,12 +690,13 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				mIsBeingDragged = false;
+				mIsTopBeingDragged = false;
+				mIsBottomBeingDragged = false;
 				mActivePointerId = INVALID_POINTER;
 				break;
 		}
 
-		return mIsBeingDragged;
+		return mIsTopBeingDragged || mIsBottomBeingDragged;
 	}
 
 	private float getMotionEventY(MotionEvent ev, int activePointerId) {
@@ -719,20 +731,23 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
+				Log.i(TAG, "onTouchEvent ACTION_DOWN");
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-				mIsBeingDragged = false;
+				mIsTopBeingDragged = false;
+				mIsBottomBeingDragged = false;
 				break;
 
 			case MotionEvent.ACTION_MOVE: {
+//				Log.i(TAG, "onTouchEvent ACTION_MOVE");
 				final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				if (pointerIndex < 0) {
-					Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
+					Log.e(TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
 					return false;
 				}
 
 				final float y = MotionEventCompat.getY(ev, pointerIndex);
 				final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
-				if (mIsBeingDragged) {
+				if (mIsTopBeingDragged) {
 					topProgress.showArrow(true);
 					float originalDragPercent = overscrollTop / mTotalDragDistance;
 					if (originalDragPercent < 0) {
@@ -741,16 +756,13 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
 					float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
 					float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
-					float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset
-							- mOriginalOffsetTop : mSpinnerFinalOffset;
-					float tensionSlingshotPercent = Math.max(0,
-							Math.min(extraOS, slingshotDist * 2) / slingshotDist);
-					float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
-							(tensionSlingshotPercent / 4), 2)) * 2f;
+					float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset - mOriginalOffsetTop : mSpinnerFinalOffset;
+					float tensionSlingshotPercent = Math.max(0, Math.min(extraOS, slingshotDist * 2) / slingshotDist);
+					float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow((tensionSlingshotPercent / 4), 2)) * 2f;
 					float extraMove = (slingshotDist) * tensionPercent * 2;
 
-					int targetY = mOriginalOffsetTop
-							+ (int) ((slingshotDist * dragPercent) + extraMove);
+					int targetY = mOriginalOffsetTop + (int) ((slingshotDist * dragPercent) + extraMove);
+					Log.i(TAG, "targetY=" + targetY);
 					// where 1.0f is a full circle
 					if (topCircleView.getVisibility() != View.VISIBLE) {
 						topCircleView.setVisibility(View.VISIBLE);
@@ -763,8 +775,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						if (mScale) {
 							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
 						}
-						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA
-								&& !isAnimationRunning(mAlphaStartAnimation)) {
+						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA && !isAnimationRunning(mAlphaStartAnimation)) {
 							// Animate the alpha
 							startProgressAlphaStartAnimation();
 						}
@@ -772,16 +783,63 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						topProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
 						topProgress.setArrowScale(Math.min(1f, adjustedPercent));
 					} else {
-						if (topProgress.getAlpha() < MAX_ALPHA
-								&& !isAnimationRunning(mAlphaMaxAnimation)) {
+						if (topProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
 							// Animate the alpha
 							startProgressAlphaMaxAnimation();
 						}
 					}
 					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
 					topProgress.setProgressRotation(rotation);
-					setTopTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop,
-							true /* requires update */);
+					setTopTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetTop, true /* requires update */);
+				}
+				if (mIsBottomBeingDragged) {
+					bottomProgress.showArrow(true);
+					float originalDragPercent = overscrollTop / mTotalDragDistance;
+					if (originalDragPercent > 0) {
+						return false;
+					}
+					float dragPercent = Math.min(1f, Math.abs(originalDragPercent));
+					float adjustedPercent = (float) Math.max(dragPercent - .4, 0) * 5 / 3;
+					float extraOS = Math.abs(overscrollTop) - mTotalDragDistance;
+					float slingshotDist = mUsingCustomStart ? mSpinnerFinalOffset - mOriginalOffsetBottom : mSpinnerFinalOffset;
+					float tensionSlingshotPercent = Math.max(0, Math.min(extraOS, slingshotDist * 2) / slingshotDist);
+					float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow((tensionSlingshotPercent / 4), 2)) * 2f;
+					float extraMove = (slingshotDist) * tensionPercent * 2;
+
+					int targetY = mOriginalOffsetBottom - (int) ((slingshotDist * dragPercent) + extraMove);
+					Log.i(TAG, "targetY=" + targetY);
+//					// where 1.0f is a full circle
+					if (bottomCircleView.getVisibility() != View.VISIBLE) {
+						bottomCircleView.setVisibility(View.VISIBLE);
+					}
+					if (!mScale) {
+						ViewCompat.setScaleX(bottomCircleView, 1f);
+						ViewCompat.setScaleY(bottomCircleView, 1f);
+					}
+//					if (overscrollTop < mTotalDragDistance) {
+//						if (mScale) {
+//							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
+//						}
+//						if (topProgress.getAlpha() > STARTING_PROGRESS_ALPHA
+//								&& !isAnimationRunning(mAlphaStartAnimation)) {
+//							// Animate the alpha
+//							startProgressAlphaStartAnimation();
+//						}
+//						float strokeStart = (float) (adjustedPercent * .8f);
+//						topProgress.setStartEndTrim(0f, Math.min(MAX_PROGRESS_ANGLE, strokeStart));
+//						topProgress.setArrowScale(Math.min(1f, adjustedPercent));
+//					} else {
+//						if (topProgress.getAlpha() < MAX_ALPHA && !isAnimationRunning(mAlphaMaxAnimation)) {
+//							// Animate the alpha
+//							startProgressAlphaMaxAnimation();
+//						}
+//					}
+//					float rotation = (-0.25f + .4f * adjustedPercent + tensionPercent * 2) * .5f;
+//					bottomProgress.setProgressRotation(rotation);
+					Log.i(TAG, "targetY=" +targetY);
+					Log.i(TAG, "mCurrentTargetOffsetBottom=" +mCurrentTargetOffsetBottom);
+					Log.i(TAG, "targetY - mCurrentTargetOffsetBottom="+(targetY - mCurrentTargetOffsetBottom));
+					setBottomTargetOffsetTopAndBottom(targetY - mCurrentTargetOffsetBottom, true /* requires update */);
 				}
 				break;
 			}
@@ -799,14 +857,15 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			case MotionEvent.ACTION_CANCEL: {
 				if (mActivePointerId == INVALID_POINTER) {
 					if (action == MotionEvent.ACTION_UP) {
-						Log.e(LOG_TAG, "Got ACTION_UP event but don't have an active pointer id.");
+						Log.e(TAG, "Got ACTION_UP event but don't have an active pointer id.");
 					}
 					return false;
 				}
 				final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				final float y = MotionEventCompat.getY(ev, pointerIndex);
 				final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
-				mIsBeingDragged = false;
+				mIsTopBeingDragged = false;
+				mIsBottomBeingDragged = false;
 				if (overscrollTop > mTotalDragDistance) {
 					setRefreshing(true, true /* notify */);
 				} else {
@@ -824,7 +883,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 							@Override
 							public void onAnimationEnd(Animation animation) {
 								if (!mScale) {
-									startScaleDownAnimation(null);
+									startTopScaleDownAnimation(null);
 								}
 							}
 

@@ -26,7 +26,7 @@
 		<activity android:name=".activities.FragmentLoaderActivity"
 				  android:label="FragmentLoaderActivity"/>
 		<activity android:name=".activities.RightSwipeRefreshActivity"
-				  android:label="RightSwipeRefreshActivity"/>
+				  android:label="RightSwipeRefresh example"/>
 		<uses-library android:name="android.test.runner"/>
 	</application>
 
