@@ -105,6 +105,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	private Animation topScaleDownAnimation;
 
+	private Animation bottomScaleDownAnimation;
+
 	private Animation mTopAlphaStartAnimation;
 
 	private Animation mBottomAlphaStartAnimation;
@@ -380,7 +382,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mNotify = false;
 			startTopScaleUpAnimation(topRefreshListener);
 		} else {
-			setRefreshing(refreshing, false /* notify */);
+			setTopRefreshing(refreshing, false /* notify */);
 		}
 	}
 
@@ -428,15 +430,28 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 	}
 
-	private void setRefreshing(boolean refreshing, final boolean notify) {
+	private void setTopRefreshing(boolean refreshing, final boolean notify) {
 		if (mRefreshing != refreshing) {
 			mNotify = notify;
 			ensureTarget();
 			mRefreshing = refreshing;
 			if (mRefreshing) {
-				animateOffsetToCorrectPosition(mCurrentTargetOffsetTop, topRefreshListener);
+				animateTopOffsetToCorrectPosition(mCurrentTargetOffsetTop, topRefreshListener);
 			} else {
 				startTopScaleDownAnimation(topRefreshListener);
+			}
+		}
+	}
+
+	private void setBottomRefreshing(boolean refreshing, final boolean notify) {
+		if (mRefreshing != refreshing) {
+			mNotify = notify;
+			ensureTarget();
+			mRefreshing = refreshing;
+			if (mRefreshing) {
+				animateBottomOffsetToCorrectPosition(mCurrentTargetOffsetBottom, bottomRefreshListener);
+			} else {
+				startBottomScaleDownAnimation(bottomRefreshListener);
 			}
 		}
 	}
@@ -452,6 +467,19 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		topCircleView.setAnimationListener(listener);
 		topCircleView.clearAnimation();
 		topCircleView.startAnimation(topScaleDownAnimation);
+	}
+
+	private void startBottomScaleDownAnimation(Animation.AnimationListener listener) {
+		bottomScaleDownAnimation = new Animation() {
+			@Override
+			public void applyTransformation(float interpolatedTime, Transformation t) {
+				setBottomAnimationProgress(1 - interpolatedTime);
+			}
+		};
+		bottomScaleDownAnimation.setDuration(SCALE_DOWN_DURATION);
+		bottomCircleView.setAnimationListener(listener);
+		bottomCircleView.clearAnimation();
+		bottomCircleView.startAnimation(bottomScaleDownAnimation);
 	}
 
 	private void startTopProgressAlphaStartAnimation() {
@@ -804,8 +832,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						ViewCompat.setScaleX(topCircleView, 1f);
 						ViewCompat.setScaleY(topCircleView, 1f);
 					}
-					Log.i(TAG, "overscrollTop="+overscrollTop);
-					Log.i(TAG, "mTotalDragDistance="+mTotalDragDistance);
 					if (overscrollTop < mTotalDragDistance) {
 						if (mScale) {
 							setTopAnimationProgress(overscrollTop / mTotalDragDistance);
@@ -851,8 +877,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 						ViewCompat.setScaleX(bottomCircleView, 1f);
 						ViewCompat.setScaleY(bottomCircleView, 1f);
 					}
-					Log.i(TAG, "overscrollBottom="+overscrollBottom);
-					Log.i(TAG, "mTotalDragDistance="+mTotalDragDistance);
 					if (Math.abs(overscrollBottom) < mTotalDragDistance) {
 						if (mScale) {
 							setBottomAnimationProgress(overscrollBottom / mTotalDragDistance);
@@ -897,38 +921,72 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				final float y = MotionEventCompat.getY(ev, pointerIndex);
 				final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
+				if (mIsTopBeingDragged) {
+					if (overscrollTop > mTotalDragDistance) {
+						setTopRefreshing(true, true /* notify */);
+					} else {
+						// cancel refresh
+						mRefreshing = false;
+						topProgress.setStartEndTrim(0f, 0f);
+						Animation.AnimationListener listener = null;
+						if (!mScale) {
+							listener = new Animation.AnimationListener() {
+
+								@Override
+								public void onAnimationStart(Animation animation) {
+								}
+
+								@Override
+								public void onAnimationEnd(Animation animation) {
+									if (!mScale) {
+										startTopScaleDownAnimation(null);
+									}
+								}
+
+								@Override
+								public void onAnimationRepeat(Animation animation) {
+								}
+
+							};
+						}
+						animateTopOffsetToStartPosition(mCurrentTargetOffsetTop, listener);
+						topProgress.showArrow(false);
+					}
+				}
+				if (mIsBottomBeingDragged) {
+					if (Math.abs(overscrollTop) > mTotalDragDistance) {
+						setBottomRefreshing(true, true /* notify */);
+					} else {
+						//cancel refresh
+						mRefreshing = false;
+						bottomProgress.setStartEndTrim(0f, 0f);
+						Animation.AnimationListener listener = null;
+						if (!mScale) {
+							listener = new Animation.AnimationListener() {
+
+								@Override
+								public void onAnimationStart(Animation animation) {
+								}
+
+								@Override
+								public void onAnimationEnd(Animation animation) {
+									if (!mScale) {
+										startBottomScaleDownAnimation(null);
+									}
+								}
+
+								@Override
+								public void onAnimationRepeat(Animation animation) {
+								}
+
+							};
+						}
+						animateBottomOffsetToStartPosition(mCurrentTargetOffsetBottom, listener);
+						bottomProgress.showArrow(false);
+					}
+				}
 				mIsTopBeingDragged = false;
 				mIsBottomBeingDragged = false;
-				if (overscrollTop > mTotalDragDistance) {
-					setRefreshing(true, true /* notify */);
-				} else {
-					// cancel refresh
-					mRefreshing = false;
-					topProgress.setStartEndTrim(0f, 0f);
-					Animation.AnimationListener listener = null;
-					if (!mScale) {
-						listener = new Animation.AnimationListener() {
-
-							@Override
-							public void onAnimationStart(Animation animation) {
-							}
-
-							@Override
-							public void onAnimationEnd(Animation animation) {
-								if (!mScale) {
-									startTopScaleDownAnimation(null);
-								}
-							}
-
-							@Override
-							public void onAnimationRepeat(Animation animation) {
-							}
-
-						};
-					}
-					animateOffsetToStartPosition(mCurrentTargetOffsetTop, listener);
-					topProgress.showArrow(false);
-				}
 				mActivePointerId = INVALID_POINTER;
 				return false;
 			}
@@ -937,41 +995,73 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		return true;
 	}
 
-	private void animateOffsetToCorrectPosition(int from, Animation.AnimationListener listener) {
+	private void animateTopOffsetToCorrectPosition(int from, Animation.AnimationListener listener) {
 		mFrom = from;
-		mAnimateToCorrectPosition.reset();
-		mAnimateToCorrectPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
-		mAnimateToCorrectPosition.setInterpolator(mDecelerateInterpolator);
+		mTopAnimateToCorrectPosition.reset();
+		mTopAnimateToCorrectPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
+		mTopAnimateToCorrectPosition.setInterpolator(mDecelerateInterpolator);
 		if (listener != null) {
 			topCircleView.setAnimationListener(listener);
 		}
 		topCircleView.clearAnimation();
-		topCircleView.startAnimation(mAnimateToCorrectPosition);
+		topCircleView.startAnimation(mTopAnimateToCorrectPosition);
 	}
 
-	private void animateOffsetToStartPosition(int from, Animation.AnimationListener listener) {
+	private void animateBottomOffsetToCorrectPosition(int from, Animation.AnimationListener listener) {
+		mFrom = from;
+		mBottomAnimateToCorrectPosition.reset();
+		mBottomAnimateToCorrectPosition.setDuration(ANIMATE_TO_TRIGGER_DURATION);
+		mBottomAnimateToCorrectPosition.setInterpolator(mDecelerateInterpolator);
+		if (listener != null) {
+			bottomCircleView.setAnimationListener(listener);
+		}
+		bottomCircleView.clearAnimation();
+		bottomCircleView.startAnimation(mBottomAnimateToCorrectPosition);
+	}
+
+	private void animateTopOffsetToStartPosition(int from, Animation.AnimationListener listener) {
 		if (mScale) {
 			// Scale the item back down
-			startScaleDownReturnToStartAnimation(from, listener);
+			startTopScaleDownReturnToStartAnimation(from, listener);
 		} else {
 			mFrom = from;
-			mAnimateToStartPosition.reset();
-			mAnimateToStartPosition.setDuration(ANIMATE_TO_START_DURATION);
-			mAnimateToStartPosition.setInterpolator(mDecelerateInterpolator);
+			mTopAnimateToStartPosition.reset();
+			mTopAnimateToStartPosition.setDuration(ANIMATE_TO_START_DURATION);
+			mTopAnimateToStartPosition.setInterpolator(mDecelerateInterpolator);
 			if (listener != null) {
 				topCircleView.setAnimationListener(listener);
 			}
 			topCircleView.clearAnimation();
-			topCircleView.startAnimation(mAnimateToStartPosition);
+			topCircleView.startAnimation(mTopAnimateToStartPosition);
 		}
 	}
 
-	private final Animation mAnimateToCorrectPosition = new Animation() {
+	private void animateBottomOffsetToStartPosition(int from, Animation.AnimationListener listener) {
+		if (mScale) {
+			// Scale the item back down
+			startBottomScaleDownReturnToStartAnimation(from, listener);
+		} else {
+			mFrom = from;
+			mBottomAnimateToStartPosition.reset();
+			mBottomAnimateToStartPosition.setDuration(ANIMATE_TO_START_DURATION);
+			mBottomAnimateToStartPosition.setInterpolator(mDecelerateInterpolator);
+			if (listener != null) {
+				bottomCircleView.setAnimationListener(listener);
+			}
+			bottomCircleView.clearAnimation();
+			bottomCircleView.startAnimation(mBottomAnimateToStartPosition);
+		}
+	}
+
+	private final Animation mTopAnimateToCorrectPosition = new Animation() {
 		@Override
 		public void applyTransformation(float interpolatedTime, Transformation t) {
 			int targetTop = 0;
 			int endTarget = 0;
 			if (!mUsingCustomStart) {
+				Log.i(TAG, "mSpinnerFinalOffset =" + mSpinnerFinalOffset);
+				Log.i(TAG, "Math.abs(mOriginalOffsetTop) =" + Math.abs(mOriginalOffsetTop));
+				Log.i(TAG, "from="+mFrom);
 				endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
 			} else {
 				endTarget = (int) mSpinnerFinalOffset;
@@ -982,21 +1072,51 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 	};
 
-	private void moveToStart(float interpolatedTime) {
+	private final Animation mBottomAnimateToCorrectPosition = new Animation() {
+		@Override
+		public void applyTransformation(float interpolatedTime, Transformation t) {
+			int targetTop = 0;
+			int endTarget = 0;
+			if (!mUsingCustomStart) {
+				endTarget = (int) (Math.abs(mOriginalOffsetBottom)- mSpinnerFinalOffset);
+			} else {
+				endTarget = (int) mSpinnerFinalOffset;
+			}
+			targetTop = (mFrom + (int) ((endTarget-mFrom) * interpolatedTime));
+			int offset = targetTop - bottomCircleView.getTop();
+			setBottomTargetOffsetTopAndBottom(offset, false /* requires update */);
+		}
+	};
+
+	private void moveTopToStart(float interpolatedTime) {
 		int targetTop = 0;
 		targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
 		int offset = targetTop - topCircleView.getTop();
 		setTopTargetOffsetTopAndBottom(offset, false /* requires update */);
 	}
 
-	private final Animation mAnimateToStartPosition = new Animation() {
+	private void moveBottomToStart(float interpolatedTime) {
+		int targetTop = 0;
+		targetTop = (mFrom + (int) ((mOriginalOffsetBottom - mFrom) * interpolatedTime));
+		int offset = targetTop - bottomCircleView.getTop();
+		setBottomTargetOffsetTopAndBottom(offset, false /* requires update */);
+	}
+
+	private final Animation mTopAnimateToStartPosition = new Animation() {
 		@Override
 		public void applyTransformation(float interpolatedTime, Transformation t) {
-			moveToStart(interpolatedTime);
+			moveTopToStart(interpolatedTime);
 		}
 	};
 
-	private void startScaleDownReturnToStartAnimation(int from, Animation.AnimationListener listener) {
+	private final Animation mBottomAnimateToStartPosition = new Animation() {
+		@Override
+		public void applyTransformation(float interpolatedTime, Transformation t) {
+			moveBottomToStart(interpolatedTime);
+		}
+	};
+
+	private void startTopScaleDownReturnToStartAnimation(int from, Animation.AnimationListener listener) {
 		mFrom = from;
 		if (isAlphaUsedForScale()) {
 			mStartingScale = topProgress.getAlpha();
@@ -1008,7 +1128,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				float targetScale = (mStartingScale + (-mStartingScale  * interpolatedTime));
 				setTopAnimationProgress(targetScale);
-				moveToStart(interpolatedTime);
+				moveTopToStart(interpolatedTime);
 			}
 		};
 		mScaleDownToStartAnimation.setDuration(SCALE_DOWN_DURATION);
@@ -1017,6 +1137,29 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 		topCircleView.clearAnimation();
 		topCircleView.startAnimation(mScaleDownToStartAnimation);
+	}
+
+	private void startBottomScaleDownReturnToStartAnimation(int from, Animation.AnimationListener listener) {
+		mFrom = from;
+		if (isAlphaUsedForScale()) {
+			mStartingScale = bottomProgress.getAlpha();
+		} else {
+			mStartingScale = ViewCompat.getScaleX(bottomCircleView);
+		}
+		mScaleDownToStartAnimation = new Animation() {
+			@Override
+			public void applyTransformation(float interpolatedTime, Transformation t) {
+				float targetScale = (mStartingScale + (-mStartingScale  * interpolatedTime));
+				setBottomAnimationProgress(targetScale);
+				moveBottomToStart(interpolatedTime);
+			}
+		};
+		mScaleDownToStartAnimation.setDuration(SCALE_DOWN_DURATION);
+		if (listener != null) {
+			bottomCircleView.setAnimationListener(listener);
+		}
+		bottomCircleView.clearAnimation();
+		bottomCircleView.startAnimation(mScaleDownToStartAnimation);
 	}
 
 	private void setTopTargetOffsetTopAndBottom(int offset, boolean requiresUpdate) {
