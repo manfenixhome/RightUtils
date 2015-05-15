@@ -101,14 +101,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	private MaterialProgressDrawable bottomProgress;
 
-	private Animation topScaleAnimation;
-
-	private Animation bottomScaleAnimation;
-
-	private Animation topScaleDownAnimation;
-
-	private Animation bottomScaleDownAnimation;
-
 	private Animation mTopAlphaStartAnimation;
 
 	private Animation mBottomAlphaStartAnimation;
@@ -141,7 +133,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
-			Log.i(TAG, "topRefreshListener end");
 			if (mRefreshing) {
 				// Make sure the progress view is fully visible
 				topProgress.setAlpha(MAX_ALPHA);
@@ -177,7 +168,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
-			Log.i(TAG, "bottomRefreshListener end");
 			if (mRefreshing) {
 				// Make sure the progress view is fully visible
 				bottomProgress.setAlpha(MAX_ALPHA);
@@ -193,7 +183,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				setBottomColorViewAlpha(MAX_ALPHA);
 				// Return the circle to its start position
 				if (mScale) {
-					//TODO
 					setBottomAnimationProgress(0 /* animation complete and view is hidden */);
 				} else {
 					setBottomTargetOffsetTopAndBottom(mOriginalOffsetBottom - mCurrentTargetOffsetBottom, true /* requires update */);
@@ -213,20 +202,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		bottomProgress.setAlpha(targetAlpha);
 	}
 
-	/**
-	 * The refresh indicator starting and resting position is always positioned
-	 * near the top of the refreshing content. This position is a consistent
-	 * location, but can be adjusted in either direction based on whether or not
-	 * there is a toolbar or actionbar present.
-	 *
-	 * @param scale Set to true if there is no view at a higher z-order than
-	 *            where the progress spinner is set to appear.
-	 * @param start The offset in pixels from the top of this view at which the
-	 *            progress spinner should appear.
-	 * @param end The offset in pixels from the top of this view at which the
-	 *            progress spinner should come to rest after a successful swipe
-	 *            gesture.
-	 */
 	public void setProgressViewOffset(boolean scale, int start, int end) {
 		mScale = scale;
 		topCircleView.setVisibility(View.GONE);
@@ -236,27 +211,12 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		topCircleView.invalidate();
 	}
 
-	/**
-	 * The refresh indicator resting position is always positioned near the top
-	 * of the refreshing content. This position is a consistent location, but
-	 * can be adjusted in either direction based on whether or not there is a
-	 * toolbar or actionbar present.
-	 *
-	 * @param scale Set to true if there is no view at a higher z-order than
-	 *            where the progress spinner is set to appear.
-	 * @param end The offset in pixels from the top of this view at which the
-	 *            progress spinner should come to rest after a successful swipe
-	 *            gesture.
-	 */
 	public void setProgressViewEndTarget(boolean scale, int end) {
 		mSpinnerFinalOffset = end;
 		mScale = scale;
 		topCircleView.invalidate();
 	}
 
-	/**
-	 * One of DEFAULT, or LARGE.
-	 */
 	public void setSize(int size) {
 		if (size != MaterialProgressDrawable.LARGE && size != MaterialProgressDrawable.DEFAULT) {
 			return;
@@ -279,21 +239,10 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		bottomCircleView.setImageDrawable(bottomProgress);
 	}
 
-	/**
-	 * Simple constructor to use when creating a SwipeRefreshLayout from code.
-	 *
-	 * @param context
-	 */
 	public RightSwipeRefreshLayour(Context context) {
 		this(context, null);
 	}
 
-	/**
-	 * Constructor that is called when inflating SwipeRefreshLayout from XML.
-	 *
-	 * @param context
-	 * @param attrs
-	 */
 	public RightSwipeRefreshLayour(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
@@ -351,27 +300,14 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		addView(bottomCircleView);
 	}
 
-	/**
-	 * Set the listener to be notified when a refresh is triggered via the swipe
-	 * gesture.
-	 */
 	public void setOnRefreshListener(OnRefreshListener listener) {
 		mListener = listener;
 	}
 
-	/**
-	 * Pre API 11, alpha is used to make the progress circle appear instead of scale.
-	 */
 	private boolean isAlphaUsedForScale() {
 		return android.os.Build.VERSION.SDK_INT < 11;
 	}
 
-	/**
-	 * Notify the widget that refresh state has changed. Do not call this when
-	 * refresh is triggered by a swipe gesture.
-	 *
-	 * @param refreshing Whether or not the view should show refresh progress.
-	 */
 	public void setRefreshing(boolean refreshing, @RightSwipeRefreshLayour.RefreshType int refreshType) {
 		if (refreshType == TOP_REFRESH) {
 			if (refreshing && mRefreshing != refreshing) {
@@ -411,12 +347,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private void startTopScaleUpAnimation(Animation.AnimationListener listener) {
 		topCircleView.setVisibility(View.VISIBLE);
 		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			// Pre API 11, alpha is used in place of scale up to show the
-			// progress circle appearing.
-			// Don't adjust the alpha during appearance otherwise.
 			topProgress.setAlpha(MAX_ALPHA);
 		}
-		topScaleAnimation = new Animation() {
+		Animation topScaleAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				setTopAnimationProgress(interpolatedTime);
@@ -433,12 +366,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private void startBottomScaleUpAnimation(Animation.AnimationListener listener) {
 		bottomCircleView.setVisibility(View.VISIBLE);
 		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			// Pre API 11, alpha is used in place of scale up to show the
-			// progress circle appearing.
-			// Don't adjust the alpha during appearance otherwise.
 			bottomProgress.setAlpha(MAX_ALPHA);
 		}
-		bottomScaleAnimation = new Animation() {
+		Animation bottomScaleAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				setTopAnimationProgress(interpolatedTime);
@@ -452,10 +382,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		bottomCircleView.startAnimation(bottomScaleAnimation);
 	}
 
-	/**
-	 * Pre API 11, this does an alpha animation.
-	 * @param progress
-	 */
 	private void setTopAnimationProgress(float progress) {
 		if (isAlphaUsedForScale()) {
 			setTopColorViewAlpha((int) (progress * MAX_ALPHA));
@@ -501,7 +427,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	}
 
 	private void startTopScaleDownAnimation(Animation.AnimationListener listener) {
-		topScaleDownAnimation = new Animation() {
+		Animation topScaleDownAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				setTopAnimationProgress(1 - interpolatedTime);
@@ -514,7 +440,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	}
 
 	private void startBottomScaleDownAnimation(Animation.AnimationListener listener) {
-		bottomScaleDownAnimation = new Animation() {
+		Animation bottomScaleDownAnimation = new Animation() {
 			@Override
 			public void applyTransformation(float interpolatedTime, Transformation t) {
 				setBottomAnimationProgress(1 - interpolatedTime);
@@ -586,31 +512,11 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		return alpha;
 	}
 
-	/**
-	 * Set the background color of the progress spinner disc.
-	 *
-	 * @param colorRes Resource id of the color.
-	 */
 	public void setProgressBackgroundColor(int colorRes) {
 		topCircleView.setBackgroundColor(colorRes);
 		topProgress.setBackgroundColor(getResources().getColor(colorRes));
 	}
 
-	/**
-	 * @deprecated Use {@link #setColorSchemeResources(int...)}
-	 */
-	@Deprecated
-	public void setColorScheme(int... colors) {
-		setColorSchemeResources(colors);
-	}
-
-	/**
-	 * Set the color resources used in the progress animation from color resources.
-	 * The first color will also be the color of the bar that grows in response
-	 * to a user swipe gesture.
-	 *
-	 * @param colorResIds
-	 */
 	public void setColorSchemeResources(int... colorResIds) {
 		final Resources res = getResources();
 		int[] colorRes = new int[colorResIds.length];
@@ -620,22 +526,11 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		setColorSchemeColors(colorRes);
 	}
 
-	/**
-	 * Set the colors used in the progress animation. The first
-	 * color will also be the color of the bar that grows in response to a user
-	 * swipe gesture.
-	 *
-	 * @param colors
-	 */
 	public void setColorSchemeColors(int... colors) {
 		ensureTarget();
 		topProgress.setColorSchemeColors(colors);
 	}
 
-	/**
-	 * @return Whether the SwipeRefreshWidget is actively showing refresh
-	 *         progress.
-	 */
 	public boolean isRefreshing() {
 		return mRefreshing;
 	}
@@ -654,11 +549,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 	}
 
-	/**
-	 * Set the distance to trigger a sync in dips
-	 *
-	 * @param distance
-	 */
 	public void setDistanceToTriggerSync(int distance) {
 		mTotalDragDistance = distance;
 	}
@@ -737,6 +627,24 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 	}
 
+	/**
+	 * @return Whether it is possible for the child view of this layout to
+	 *         scroll down. Override this if the child view is a custom view.
+	 */
+	public boolean canChildScrollDown() {
+		if (android.os.Build.VERSION.SDK_INT < 14) {
+			//TODO must be corrected
+			if (mTarget instanceof AbsListView) {
+				final AbsListView absListView = (AbsListView) mTarget;
+				return absListView.getChildCount() > 0 && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0).getTop() < absListView.getPaddingTop());
+			} else {
+				return mTarget.getScrollY() > 0;
+			}
+		} else {
+			return ViewCompat.canScrollVertically(mTarget, 1);
+		}
+	}
+
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		ensureTarget();
@@ -747,7 +655,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mReturningToStart = false;
 		}
 
-		if (!isEnabled() || mReturningToStart || canChildScrollUp() || mRefreshing) {
+		if (!isEnabled() || mReturningToStart || (canChildScrollUp() && canChildScrollDown()) || mRefreshing) {
 			// Fail fast if we're not in a state where a swipe is possible
 			return false;
 		}
@@ -776,9 +684,15 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				}
 				final float yDiff = y - mInitialMotionY;
 				if (yDiff > mTouchSlop && !mIsTopBeingDragged) {
+					if (canChildScrollUp()) {
+						return false;
+					}
 					mIsTopBeingDragged = true;
 					topProgress.setAlpha(STARTING_PROGRESS_ALPHA);
 				} else if (Math.abs(yDiff) > mTouchSlop && !mIsBottomBeingDragged) {
+					if (canChildScrollDown()) {
+						return false;
+					}
 					mIsBottomBeingDragged = true;
 					bottomProgress.setAlpha(STARTING_PROGRESS_ALPHA);
 				}
@@ -824,21 +738,19 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mReturningToStart = false;
 		}
 
-		if (!isEnabled() || mReturningToStart || canChildScrollUp()) {
+		if (!isEnabled() || mReturningToStart || (canChildScrollUp() && canChildScrollDown())) {
 			// Fail fast if we're not in a state where a swipe is possible
 			return false;
 		}
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
-				Log.i(TAG, "onTouchEvent ACTION_DOWN");
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 				mIsTopBeingDragged = false;
 				mIsBottomBeingDragged = false;
 				break;
 
 			case MotionEvent.ACTION_MOVE: {
-//				Log.i(TAG, "onTouchEvent ACTION_MOVE");
 				final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				if (pointerIndex < 0) {
 					Log.e(TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
@@ -1220,17 +1132,11 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		final int pointerIndex = MotionEventCompat.getActionIndex(ev);
 		final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
 		if (pointerId == mActivePointerId) {
-			// This was our active pointer going up. Choose a new
-			// active pointer and adjust accordingly.
 			final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
 			mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
 		}
 	}
 
-	/**
-	 * Classes that wish to be notified when the swipe gesture correctly
-	 * triggers a refresh should implement this interface.
-	 */
 	public static final int TOP_REFRESH = 100;
 	public static final int BOTTOM_REFRESH = 200;
 
