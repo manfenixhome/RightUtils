@@ -103,6 +103,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	private Animation topScaleAnimation;
 
+	private Animation bottomScaleAnimation;
+
 	private Animation topScaleDownAnimation;
 
 	private Animation bottomScaleDownAnimation;
@@ -139,6 +141,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
+			Log.i(TAG, "topRefreshListener end");
 			if (mRefreshing) {
 				// Make sure the progress view is fully visible
 				topProgress.setAlpha(MAX_ALPHA);
@@ -174,6 +177,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		@Override
 		public void onAnimationEnd(Animation animation) {
+			Log.i(TAG, "bottomRefreshListener end");
 			if (mRefreshing) {
 				// Make sure the progress view is fully visible
 				bottomProgress.setAlpha(MAX_ALPHA);
@@ -368,21 +372,39 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	 *
 	 * @param refreshing Whether or not the view should show refresh progress.
 	 */
-	public void setRefreshing(boolean refreshing) {
-		if (refreshing && mRefreshing != refreshing) {
-			// scale and show
-			mRefreshing = refreshing;
-			int endTarget = 0;
-			if (!mUsingCustomStart) {
-				endTarget = (int) (mSpinnerFinalOffset + mOriginalOffsetTop);
+	public void setRefreshing(boolean refreshing, @RightSwipeRefreshLayour.RefreshType int refreshType) {
+		if (refreshType == TOP_REFRESH) {
+			if (refreshing && mRefreshing != refreshing) {
+				// scale and show
+				mRefreshing = refreshing;
+				int endTarget = 0;
+				if (!mUsingCustomStart) {
+					endTarget = (int) (mSpinnerFinalOffset + mOriginalOffsetTop);
+				} else {
+					endTarget = (int) mSpinnerFinalOffset;
+				}
+				setTopTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop, true /* requires update */);
+				mNotify = false;
+				startTopScaleUpAnimation(topRefreshListener);
 			} else {
-				endTarget = (int) mSpinnerFinalOffset;
+				setTopRefreshing(refreshing, false /* notify */);
 			}
-			setTopTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop, true /* requires update */);
-			mNotify = false;
-			startTopScaleUpAnimation(topRefreshListener);
-		} else {
-			setTopRefreshing(refreshing, false /* notify */);
+		} else if (refreshType == BOTTOM_REFRESH) {
+			if (refreshing && mRefreshing != refreshing) {
+				// scale and show
+				mRefreshing = refreshing;
+				int endTarget = 0;
+				if (!mUsingCustomStart) {
+					endTarget = (int) (mSpinnerFinalOffset + mOriginalOffsetBottom);
+				} else {
+					endTarget = (int) mSpinnerFinalOffset;
+				}
+				setBottomTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetBottom, true /* requires update */);
+				mNotify = false;
+				startBottomScaleUpAnimation(bottomRefreshListener);
+			} else {
+				setBottomRefreshing(refreshing, false /* notify */);
+			}
 		}
 	}
 
@@ -406,6 +428,28 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		}
 		topCircleView.clearAnimation();
 		topCircleView.startAnimation(topScaleAnimation);
+	}
+
+	private void startBottomScaleUpAnimation(Animation.AnimationListener listener) {
+		bottomCircleView.setVisibility(View.VISIBLE);
+		if (android.os.Build.VERSION.SDK_INT >= 11) {
+			// Pre API 11, alpha is used in place of scale up to show the
+			// progress circle appearing.
+			// Don't adjust the alpha during appearance otherwise.
+			bottomProgress.setAlpha(MAX_ALPHA);
+		}
+		bottomScaleAnimation = new Animation() {
+			@Override
+			public void applyTransformation(float interpolatedTime, Transformation t) {
+				setTopAnimationProgress(interpolatedTime);
+			}
+		};
+		bottomScaleAnimation.setDuration(mMediumAnimationDuration);
+		if (listener != null) {
+			bottomCircleView.setAnimationListener(listener);
+		}
+		bottomCircleView.clearAnimation();
+		bottomCircleView.startAnimation(bottomScaleAnimation);
 	}
 
 	/**
@@ -659,10 +703,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
-			//TODO
 			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() + bottomCircleView.getMeasuredHeight();
-			Log.i(TAG, "mTarget.getMeasuredHeight()="+mTarget.getMeasuredHeight());
-			Log.i(TAG, "mCurrentTargetOffsetBottom="+mCurrentTargetOffsetBottom);
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
@@ -713,7 +754,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
-				Log.i(TAG, "ACTION_DOWN");
 				setTopTargetOffsetTopAndBottom(mOriginalOffsetTop - topCircleView.getTop(), true);
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 				mIsTopBeingDragged = false;
@@ -725,7 +765,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				mInitialMotionY = initialMotionY;
 
 			case MotionEvent.ACTION_MOVE:
-				Log.i(TAG, "ACTION_MOVE");
 				if (mActivePointerId == INVALID_POINTER) {
 					Log.e(TAG, "Got ACTION_MOVE event but don't have an active pointer id.");
 					return false;
@@ -736,7 +775,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 					return false;
 				}
 				final float yDiff = y - mInitialMotionY;
-				Log.i(TAG, "ACTION_MOVE="+yDiff);
 				if (yDiff > mTouchSlop && !mIsTopBeingDragged) {
 					mIsTopBeingDragged = true;
 					topProgress.setAlpha(STARTING_PROGRESS_ALPHA);
@@ -971,6 +1009,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 								@Override
 								public void onAnimationEnd(Animation animation) {
 									if (!mScale) {
+										Log.i(TAG, "onAnimationEnd");
 										startBottomScaleDownAnimation(null);
 									}
 								}
@@ -1059,9 +1098,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			int targetTop = 0;
 			int endTarget = 0;
 			if (!mUsingCustomStart) {
-				Log.i(TAG, "mSpinnerFinalOffset =" + mSpinnerFinalOffset);
-				Log.i(TAG, "Math.abs(mOriginalOffsetTop) =" + Math.abs(mOriginalOffsetTop));
-				Log.i(TAG, "from="+mFrom);
 				endTarget = (int) (mSpinnerFinalOffset - Math.abs(mOriginalOffsetTop));
 			} else {
 				endTarget = (int) mSpinnerFinalOffset;

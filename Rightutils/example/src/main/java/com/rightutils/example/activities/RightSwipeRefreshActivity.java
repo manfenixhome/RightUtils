@@ -26,13 +26,13 @@ public class RightSwipeRefreshActivity extends AppCompatActivity implements Righ
 
 
 	@Override
-	public void onRefresh(@RightSwipeRefreshLayour.RefreshType int refreshType) {
-		rightSwipeRefreshLayour.setRefreshing(true);
+	public void onRefresh(final @RightSwipeRefreshLayour.RefreshType int refreshType) {
+		rightSwipeRefreshLayour.setRefreshing(true, refreshType);
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
 				try {
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -41,7 +41,7 @@ public class RightSwipeRefreshActivity extends AppCompatActivity implements Righ
 
 			@Override
 			protected void onPostExecute(Void aVoid) {
-				rightSwipeRefreshLayour.setRefreshing(false);
+				rightSwipeRefreshLayour.setRefreshing(false, refreshType);
 			}
 		}.execute();
 	}
