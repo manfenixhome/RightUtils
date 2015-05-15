@@ -36,7 +36,6 @@ public class RightSwipeRefreshRecycleViewActivity extends AppCompatActivity impl
 		setContentView(R.layout.activity_right_swipe_refresh_recyclerview);
 		mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 		mRecyclerView.setHasFixedSize(true);
-//		mRecyclerView.addItemDecoration(new DividerItemDecoration(RightSwipeRefreshRecycleViewActivity.this, DividerItemDecoration.VERTICAL_LIST));
 		mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 		mLayoutManager = new LinearLayoutManager(RightSwipeRefreshRecycleViewActivity.this);
 		mRecyclerView.setLayoutManager(mLayoutManager);

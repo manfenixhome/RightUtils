@@ -1144,7 +1144,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	public @interface RefreshType {}
 
 	public interface OnRefreshListener {
-		public void onRefresh(@RefreshType int refreshType);
+		public void onRefresh(final @RefreshType int refreshType);
 	}
 
 }
