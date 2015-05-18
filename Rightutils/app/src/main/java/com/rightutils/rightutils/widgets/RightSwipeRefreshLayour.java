@@ -515,6 +515,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	public void setProgressBackgroundColor(int colorRes) {
 		topCircleView.setBackgroundColor(colorRes);
 		topProgress.setBackgroundColor(getResources().getColor(colorRes));
+		bottomCircleView.setBackgroundColor(colorRes);
+		bottomProgress.setBackgroundColor(getResources().getColor(colorRes));
 	}
 
 	public void setColorSchemeResources(int... colorResIds) {
@@ -529,6 +531,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	public void setColorSchemeColors(int... colors) {
 		ensureTarget();
 		topProgress.setColorSchemeColors(colors);
+		bottomProgress.setColorSchemeColors(colors);
 	}
 
 	public boolean isRefreshing() {
