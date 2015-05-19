@@ -36,7 +36,7 @@ public class BasicRightRequest implements RightRequest {
 	protected int maxPerRoute = DEFAULT_MAX_PER_ROUTE;
 	protected Registry<ConnectionSocketFactory> socketFactoryRegistry;
 
-	private BasicRightRequest() {
+	public BasicRightRequest() {
 		initSocketFactory();
 	}
 
