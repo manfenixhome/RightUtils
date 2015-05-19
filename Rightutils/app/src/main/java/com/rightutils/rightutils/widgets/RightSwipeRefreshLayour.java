@@ -1,6 +1,8 @@
 package com.rightutils.rightutils.widgets;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
@@ -17,6 +19,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
+import android.widget.FrameLayout;
 
 /**
  * Created by Anton Maniskevich on 5/13/15.
@@ -118,6 +121,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	private int mCircleWidth;
 
 	private int mCircleHeight;
+	private boolean needAddBottomPading;
 
 	// Whether the client has set a custom starting position;
 	private boolean mUsingCustomStart;
@@ -245,11 +249,25 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	public RightSwipeRefreshLayour(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		FrameLayout frameLayout = (FrameLayout) ((Activity)getContext()).getWindow().getDecorView();
+		needAddBottomPading = false;
+		int navigationBarHeight = getNavigationBarHeight();
+		Log.i(TAG, "Need height="+navigationBarHeight);
+		if (navigationBarHeight > 0) {
+			for (int i = 0; i < frameLayout.getChildCount(); i++) {
+				frameLayout.getChildAt(i).measure(0, 0);
+				Log.i(TAG, "height="+frameLayout.getChildAt(i).getMeasuredHeight());
+				if (frameLayout.getChildAt(i).getMeasuredHeight() == navigationBarHeight) {
+					needAddBottomPading = true;
+					Log.i(TAG, "found");
+					break;
+				}
+			}
+		}
 
 		mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
-		mMediumAnimationDuration = getResources().getInteger(
-				android.R.integer.config_mediumAnimTime);
+		mMediumAnimationDuration = getResources().getInteger(android.R.integer.config_mediumAnimTime);
 
 		setWillNotDraw(false);
 		mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
@@ -596,7 +614,8 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		if (!mUsingCustomStart && !mOriginalOffsetCalculated) {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
-			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() + bottomCircleView.getMeasuredHeight();
+			//https://code.google.com/p/android/issues/detail?id=88256 getNavigationBarHeight()
+			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() - (needAddBottomPading || android.os.Build.VERSION.SDK_INT <21 ? getNavigationBarHeight():0) + bottomCircleView.getMeasuredHeight();
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
@@ -611,6 +630,16 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 				break;
 			}
 		}
+	}
+
+	private int getNavigationBarHeight() {
+		Resources resources = getContext().getResources();
+		int orientation = resources.getConfiguration().orientation;
+		int id = resources.getIdentifier(orientation == Configuration.ORIENTATION_PORTRAIT ? "navigation_bar_height" : "navigation_bar_height_landscape","dimen", "android");
+		if (id > 0) {
+			return resources.getDimensionPixelSize(id);
+		}
+		return 0;
 	}
 
 	/**
