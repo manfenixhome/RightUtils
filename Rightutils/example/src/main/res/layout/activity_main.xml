@@ -26,12 +26,19 @@
 
 	<com.rightutils.rightutils.widgets.TypefaceButton
 		android:id="@+id/btn_right_refresh_listview"
-		android:text="Right swipe refresh ListView"
+		android:text="RightSwipeRefresh ListView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"/>
+
 	<com.rightutils.rightutils.widgets.TypefaceButton
 		android:id="@+id/btn_right_refresh_recyclerview"
-		android:text="Right swipe refresh RecyclerView"
+		android:text="RightSwipeRefresh RecyclerView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
+	<com.rightutils.rightutils.widgets.TypefaceButton
+		android:id="@+id/btn_right_refresh_viewpager"
+		android:text="RightSwipeRefresh ViewPager"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"/>
 

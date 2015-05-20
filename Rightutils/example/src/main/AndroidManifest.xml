@@ -26,10 +26,13 @@
 		<activity android:name=".activities.FragmentLoaderActivity"
 				  android:label="FragmentLoaderActivity"/>
 		<activity android:name=".activities.RightSwipeRefreshActivity"
-				  android:label="RightSwipeRefresh ListView example">
+				  android:label="ListView RightSwipeRefresh">
 		</activity>
 		<activity android:name=".activities.RightSwipeRefreshRecycleViewActivity"
-				  android:label="RightSwipeRefresh RecyclerView example">
+				  android:label="RecyclerView RightSwipeRefresh">
+		</activity>
+		<activity android:name=".activities.RightSwipeRefreshViewPagerActivity"
+				  android:label="Viewpager RightSwipeRefresh">
 		</activity>
 		<uses-library android:name="android.test.runner"/>
 	</application>

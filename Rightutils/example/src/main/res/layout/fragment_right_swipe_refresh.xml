@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+
+	<com.rightutils.rightutils.widgets.RightSwipeRefreshLayour
+		android:id="@+id/refresh"
+		android:layout_width="match_parent"
+		android:layout_weight="1"
+		android:layout_height="0dp">
+		<ListView
+			android:id="@+id/list_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:choiceMode="singleChoice"
+			android:divider="@android:color/transparent"
+			android:dividerHeight="1dp"/>
+	</com.rightutils.rightutils.widgets.RightSwipeRefreshLayour>
+
+</LinearLayout>

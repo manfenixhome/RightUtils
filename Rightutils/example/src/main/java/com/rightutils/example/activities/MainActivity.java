@@ -21,6 +21,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		findViewById(R.id.btn_fragment_loader).setOnClickListener(this);
 		findViewById(R.id.btn_right_refresh_listview).setOnClickListener(this);
 		findViewById(R.id.btn_right_refresh_recyclerview).setOnClickListener(this);
+		findViewById(R.id.btn_right_refresh_viewpager).setOnClickListener(this);
 	}
 
 	@Override
@@ -40,6 +41,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 				break;
 			case R.id.btn_right_refresh_recyclerview:
 				startActivity(new Intent(MainActivity.this, RightSwipeRefreshRecycleViewActivity.class));
+				break;
+			case R.id.btn_right_refresh_viewpager:
+				startActivity(new Intent(MainActivity.this, RightSwipeRefreshViewPagerActivity.class));
 				break;
 		}
 	}

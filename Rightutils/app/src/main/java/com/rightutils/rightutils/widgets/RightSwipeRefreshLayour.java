@@ -80,7 +80,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 	// Target is returning to its start offset because it was cancelled or a
 	// refresh was triggered.
 	private boolean mReturningToStart;
-	private final DecelerateInterpolator mDecelerateInterpolator;
+	private final DecelerateInterpolator mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
 	private static final int[] LAYOUT_ATTRS = new int[] {
 			android.R.attr.enabled
 	};
@@ -249,19 +249,16 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	public RightSwipeRefreshLayour(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		FrameLayout frameLayout = (FrameLayout) ((Activity)getContext()).getWindow().getDecorView();
+		if (isInEditMode()) {
+			return;
+		}
+
 		needAddBottomPading = false;
-		int navigationBarHeight = getNavigationBarHeight();
-		Log.i(TAG, "Need height="+navigationBarHeight);
-		if (navigationBarHeight > 0) {
-			for (int i = 0; i < frameLayout.getChildCount(); i++) {
-				frameLayout.getChildAt(i).measure(0, 0);
-				Log.i(TAG, "height="+frameLayout.getChildAt(i).getMeasuredHeight());
-				if (frameLayout.getChildAt(i).getMeasuredHeight() == navigationBarHeight) {
-					needAddBottomPading = true;
-					Log.i(TAG, "found");
-					break;
-				}
+		if (getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			needAddBottomPading = true;
+		} else {
+			if (android.os.Build.VERSION.SDK_INT <21) {
+				needAddBottomPading = true;
 			}
 		}
 
@@ -270,7 +267,6 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 		mMediumAnimationDuration = getResources().getInteger(android.R.integer.config_mediumAnimTime);
 
 		setWillNotDraw(false);
-		mDecelerateInterpolator = new DecelerateInterpolator(DECELERATE_INTERPOLATION_FACTOR);
 
 		final TypedArray a = context.obtainStyledAttributes(attrs, LAYOUT_ATTRS);
 		setEnabled(a.getBoolean(0, true));
@@ -615,7 +611,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
 			//https://code.google.com/p/android/issues/detail?id=88256 getNavigationBarHeight()
-			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() - (needAddBottomPading || android.os.Build.VERSION.SDK_INT <21 ? getNavigationBarHeight():0) + bottomCircleView.getMeasuredHeight();
+			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() - (needAddBottomPading ? getNavigationBarHeight():0) + bottomCircleView.getMeasuredHeight();
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
