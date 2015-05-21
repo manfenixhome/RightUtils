@@ -597,6 +597,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		Log.i(TAG, "onMeasure");
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		if (mTarget == null) {
 			ensureTarget();
@@ -611,7 +612,7 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 			mOriginalOffsetCalculated = true;
 			mCurrentTargetOffsetTop = mOriginalOffsetTop = -topCircleView.getMeasuredHeight();
 			//https://code.google.com/p/android/issues/detail?id=88256 getNavigationBarHeight()
-			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() - (needAddBottomPading ? getNavigationBarHeight():0) + bottomCircleView.getMeasuredHeight();
+			mCurrentTargetOffsetBottom = mOriginalOffsetBottom = mTarget.getMeasuredHeight() - getNavigationBarHeight()/*- (needAddBottomPading ? getNavigationBarHeight():0)*/ + bottomCircleView.getMeasuredHeight();
 		}
 		topCircleViewIndex = -1;
 		bottomCircleViewIndex = -1;
@@ -690,7 +691,9 @@ public class RightSwipeRefreshLayour extends ViewGroup {
 
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
+				mOriginalOffsetCalculated = false;
 				setTopTargetOffsetTopAndBottom(mOriginalOffsetTop - topCircleView.getTop(), true);
+//				setBottomTargetOffsetTopAndBottom(mOriginalOffsetBottom + bottomCircleView.getTop(), true);
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 				mIsTopBeingDragged = false;
 				mIsBottomBeingDragged = false;
