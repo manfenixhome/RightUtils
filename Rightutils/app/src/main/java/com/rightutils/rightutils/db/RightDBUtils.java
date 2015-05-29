@@ -10,14 +10,11 @@ import android.util.Log;
 import com.rightutils.rightutils.collections.Operation;
 import com.rightutils.rightutils.collections.Predicate;
 import com.rightutils.rightutils.collections.RightList;
-import com.rightutils.rightutils.utils.RightUtils;
 
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -190,7 +187,7 @@ public abstract class RightDBUtils {
 			} else if (field.getType().isAssignableFrom(double.class)) {
 				values.put(getColumnName(field), (Double) field.get(element));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
-				values.put(getColumnName(field), ((Date) field.get(element)).getTime());
+				values.put(getColumnName(field), field.get(element) == null ? null : ((Date) field.get(element)).getTime());
 			} else {
 				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", element.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
@@ -244,7 +241,7 @@ public abstract class RightDBUtils {
 			} else if (field.getType().isAssignableFrom(double.class)) {
 				field.set(result, cursor.getDouble(cursor.getColumnIndex(columnName)));
 			} else if (field.getType().isAssignableFrom(Date.class)) {
-				field.set(result, new Date(cursor.getLong(cursor.getColumnIndex(columnName))));
+				field.set(result, cursor.getLong(cursor.getColumnIndex(columnName)) == 0 ? null : new Date(cursor.getLong(cursor.getColumnIndex(columnName))));
 			} else if (field.isAnnotationPresent(ColumnChild.class)) {
 				String foreignKey = getForeignKey(field);
 				long parentKeyValue = cursor.getLong(cursor.getColumnIndex(getParentKey(field)));

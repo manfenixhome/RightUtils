@@ -2,7 +2,6 @@ package com.rightutils.rightutils.db;
 
 import android.test.AndroidTestCase;
 
-import com.rightutils.rightutils.collections.Function;
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.entities.Company;
 import com.rightutils.rightutils.entities.Worker;
@@ -37,6 +36,16 @@ public class DbTest extends AndroidTestCase {
 		assertEquals(company, dbCompanies.getFirst());
 	}
 
+	public void testAddEntityWithNullDate() throws Exception {
+		Company company = new Company(100, "Company name", null);
+
+		dbUtils.add(company);
+		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
+
+		assertEquals(1, dbCompanies.size());
+		assertEquals(company, dbCompanies.getFirst());
+	}
+
 	public void testAddEntityAutoInc() throws Exception {
 		Company company = new Company("Company name");
 
@@ -45,7 +54,7 @@ public class DbTest extends AndroidTestCase {
 		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
 
 		assertEquals(2, dbCompanies.size());
-		assertEquals(new Company(1, "Coompany name"), dbCompanies.get(0));
+		assertEquals(new Company(1, "Company name"), dbCompanies.get(0));
 		assertEquals(new Company(2, "Company name"), dbCompanies.get(1));
 	}
 
