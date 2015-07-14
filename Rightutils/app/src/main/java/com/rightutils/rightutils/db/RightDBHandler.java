@@ -19,12 +19,17 @@ public class RightDBHandler extends SQLiteOpenHelper {
 	private Context context;
 	private String name;
 	private String path;
+	private int version;
 
-	public RightDBHandler(Context context, String name, int version) {
+	private OnVersionChangeCallback mCallback;
+
+	public RightDBHandler(Context context, String name, int version, OnVersionChangeCallback mCallback) {
 		super(context, name, null, version);
 		this.context = context;
 		this.name = name;
 		path = context.getFilesDir() + "/databases/";
+		this.version = version;
+		this.mCallback = mCallback;
 	}
 
 	public void createDataBase() throws IOException {
@@ -69,7 +74,29 @@ public class RightDBHandler extends SQLiteOpenHelper {
 		String myPath = path + name;
 		dataBase = SQLiteDatabase.openDatabase(myPath, null, openType);
 		dataBase.execSQL("PRAGMA foreign_keys=ON;");
+		validateVersion();
 		return dataBase;
+	}
+
+	private void validateVersion() {
+		int currentVersion = dataBase.getVersion();
+		if (currentVersion != version) {
+			if (mCallback != null) {
+				if (dataBase.isReadOnly()) {
+					Log.e(TAG, "Can't upgrade read-only database from version " +
+							currentVersion + " to " + version);
+				}
+				if (currentVersion > version) {
+					mCallback.onDowngrade(dataBase, currentVersion, version);
+				} else if (currentVersion < version) {
+					mCallback.onUpgrade(dataBase, currentVersion, version);
+				}
+				dataBase.setVersion(version);
+			} else {
+				Log.e(TAG, "Can't upgrade database from version " + currentVersion
+						+ " to " + version + ", cause onVersionChangeCallback is null");
+			}
+		}
 	}
 
 	@Override
@@ -97,4 +124,8 @@ public class RightDBHandler extends SQLiteOpenHelper {
 		return openDataBase(SQLiteDatabase.OPEN_READONLY);
 	}
 
+	public interface OnVersionChangeCallback {
+		void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
+		void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion);
+	}
 }

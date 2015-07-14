@@ -20,7 +20,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Date;
 
-public abstract class RightDBUtils {
+public abstract class RightDBUtils implements RightDBHandler.OnVersionChangeCallback {
 
 	private static final String TAG = RightDBUtils.class.getName();
 	private static final ObjectMapper MAPPER = new ObjectMapper().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -28,7 +28,7 @@ public abstract class RightDBUtils {
 	protected SQLiteDatabase db;
 
 	protected void setDBContext(Context context, String name, int version) {
-		dbHandler = new RightDBHandler(context, name, version);
+		dbHandler = new RightDBHandler(context, name, version, this);
 		try {
 			dbHandler.createDataBase();
 			if (db != null && db.isOpen()) {
@@ -298,5 +298,15 @@ public abstract class RightDBUtils {
 
 	public RightDBHandler getDbHandler() {
 		return dbHandler;
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+	}
+
+	@Override
+	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
 	}
 }
