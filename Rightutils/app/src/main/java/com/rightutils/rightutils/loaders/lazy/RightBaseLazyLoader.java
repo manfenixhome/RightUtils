@@ -13,6 +13,9 @@ import com.rightutils.rightutils.loaders.lazy.request.AddPostJsonToLazyRequest;
 import com.rightutils.rightutils.loaders.lazy.request.LazyBaseRequest;
 import com.rightutils.rightutils.loaders.lazy.request.PostToPutLazyRequest;
 import com.rightutils.rightutils.net.BasicRightRequest;
+
+import java.io.IOException;
+
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
@@ -23,8 +26,9 @@ import ch.boye.httpclientandroidlib.util.EntityUtils;
 /**
  * Created by victorpaul on 14/08/15.
  */
-public class RightLazyLoader extends BaseLoader<Boolean> implements LoaderListener<Boolean> {
-    public final static String TAG = RightLazyLoader.class.getSimpleName();
+abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements LoaderListener<Boolean> {
+    public final static String TAG = RightBaseLazyLoader.class.getSimpleName();
+    public final static int NO_INTERNET = 0;
 
     public interface CallbackResponse {
         void response(int pageCode,String response) throws Exception;
@@ -32,20 +36,33 @@ public class RightLazyLoader extends BaseLoader<Boolean> implements LoaderListen
     public interface CallbackCanceled {
         void run();
     }
+    public interface CallbackNoInternet {
+        void noInternet();
+    }
 
     public static boolean debug = true;
-    private int statusCodeResponse;
+    private int statusCodeResponse = NO_INTERNET;
     private String stringResponse;
     private SparseArrayCompat<CallbackResponse> listeners;
     private CallbackResponse defaultListener = null;
     private CallbackCanceled cancelListener = null;
+    private CallbackNoInternet noInternetListener = null;
+
+    private LoaderListener<Boolean> usersLoaderListener;
 
     public LazyBaseRequest request;
 
-    public RightLazyLoader(FragmentActivity fragmentActivity, int loaderId) {
+    public RightBaseLazyLoader(FragmentActivity fragmentActivity, int loaderId) {
         super(fragmentActivity, loaderId);
         this.listeners = new SparseArrayCompat<>();
-        setLoaderListener(this);
+
+        super.setLoaderListener(this);
+    }
+
+    @Override
+    public BaseLoader<Boolean> setLoaderListener(LoaderListener<Boolean> loaderListener) {
+        usersLoaderListener = loaderListener;
+        return super.setLoaderListener(this);
     }
 
     private void log(String log){
@@ -54,24 +71,28 @@ public class RightLazyLoader extends BaseLoader<Boolean> implements LoaderListen
         }
     }
 
-    public RightLazyLoader setRequest(LazyBaseRequest request){
+    public RightBaseLazyLoader setRequest(LazyBaseRequest request){
         this.request = request;
         return this;
     }
 
-    public RightLazyLoader setResponseListener(int page, CallbackResponse listener){
+    public RightBaseLazyLoader setResponseListener(int page, CallbackResponse listener){
         listeners.put(page, listener);
         return this;
     }
 
-    public RightLazyLoader setDefaultResponseListner(CallbackResponse defaultListener) {
+    public RightBaseLazyLoader setDefaultResponseListener(CallbackResponse defaultListener) {
         this.defaultListener = defaultListener;
         return this;
     }
 
-    public RightLazyLoader setOnCancelListener(CallbackCanceled cancelListener){
+    public RightBaseLazyLoader setOnCancelListener(CallbackCanceled cancelListener){
         this.cancelListener = cancelListener;
         return this;
+    }
+
+    public void setNoInternetListener(CallbackNoInternet noInternetListener) {
+        this.noInternetListener = noInternetListener;
     }
 
     @Override
@@ -140,7 +161,7 @@ public class RightLazyLoader extends BaseLoader<Boolean> implements LoaderListen
             }else{
                 log("POST:" + request.getUrl());
             }
-            log("FORM:" + entity.toString());
+            log("FORM:" + toString(entity));
 
             if(header != null) {
                 if(request instanceof PostToPutLazyRequest) {
@@ -163,23 +184,45 @@ public class RightLazyLoader extends BaseLoader<Boolean> implements LoaderListen
         }
     }
 
+    static String toString(HttpEntity entity) throws IOException {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream((int)entity.getContentLength());
+        entity.writeTo(out);
+        //byte[] entityContentAsBytes = out.toByteArray();
+        return new String(out.toByteArray());
+    }
+
     @Override
     public void onLoadFinished(FragmentActivity fragmentActivity, Fragment fragment, Boolean aBoolean, BaseLoader<Boolean> baseLoader) {
-        if(listeners.get(statusCodeResponse) != null){
-            try {
-                listeners.get(statusCodeResponse).response(statusCodeResponse, stringResponse);
-            } catch (Exception e) {
-                Toast.makeText(getContext(), "Error occurred! Server response is invalid.", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+        if(usersLoaderListener != null) {
+            usersLoaderListener.onLoadFinished(fragmentActivity, fragment, aBoolean, baseLoader);
+        }
+
+        // NO INTERNET
+        if(statusCodeResponse == NO_INTERNET) {
+            if (noInternetListener == null) {
+                Toast.makeText(getContext(), "No internet", Toast.LENGTH_LONG).show();
+            } else {
+                noInternetListener.noInternet();
             }
-        }else{
-            if(defaultListener == null) {
-                Toast.makeText(getContext(),"Server sent unsupported response (" + statusCodeResponse + ")",Toast.LENGTH_LONG).show();
-            }else{
+        }else {
+            // USERS LISTENERS
+            if (listeners.get(statusCodeResponse) != null) {
                 try {
-                    defaultListener.response(statusCodeResponse, stringResponse);
+                    listeners.get(statusCodeResponse).response(statusCodeResponse, stringResponse);
                 } catch (Exception e) {
+                    Toast.makeText(getContext(), "Error occurred! Couldn't proceed servers response (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
+                }
+                // DEFAULT LISTENER
+            } else {
+                if (defaultListener == null) {
+                    Toast.makeText(getContext(), "Server sent unsupported response (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
+                } else {
+                    try {
+                        defaultListener.response(statusCodeResponse, stringResponse);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
