@@ -1,7 +1,6 @@
 package com.rightutils.rightutils.loaders.lazy.request;
 
 import java.io.File;
-
 import ch.boye.httpclientandroidlib.entity.ContentType;
 import ch.boye.httpclientandroidlib.entity.mime.HttpMultipartMode;
 import ch.boye.httpclientandroidlib.entity.mime.MultipartEntityBuilder;
@@ -11,7 +10,7 @@ import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
 /**
  * Created by victorpaul on 13/08/15.
  */
-public abstract class AddMultipartEntityBuilderToLazyRequest implements LazyBaseRequest {
+public abstract class AddMultipartEntityBuilderToLazyRequest extends LazyRequest {
     MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
     public AddMultipartEntityBuilderToLazyRequest addPart(String key,int part){

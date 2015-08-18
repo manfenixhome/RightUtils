@@ -7,11 +7,8 @@ import android.util.Log;
 import android.widget.Toast;
 import com.rightutils.rightutils.loaders.BaseLoader;
 import com.rightutils.rightutils.loaders.LoaderListener;
-import com.rightutils.rightutils.loaders.lazy.request.AddHeaderToLazyRequest;
 import com.rightutils.rightutils.loaders.lazy.request.AddMultipartEntityBuilderToLazyRequest;
-import com.rightutils.rightutils.loaders.lazy.request.AddPostJsonToLazyRequest;
-import com.rightutils.rightutils.loaders.lazy.request.LazyBaseRequest;
-import com.rightutils.rightutils.loaders.lazy.request.LazyCustomRequest;
+import com.rightutils.rightutils.loaders.lazy.request.LazyRequest;
 import com.rightutils.rightutils.net.BasicRightRequest;
 import java.io.IOException;
 import ch.boye.httpclientandroidlib.Header;
@@ -28,19 +25,33 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
     public final static String TAG = RightBaseLazyLoader.class.getSimpleName();
     public final static int NO_INTERNET = 0;
 
-    private String
+    public static String
             messageNoInternet = "No internet",
             messageErrorProceedResponse = "Error occurred! Couldn't proceed servers response",
             messageUnsupportedResponse = "Server sent unsupported response";
 
     public interface CallbackResponse {
-        void response(int pageCode,String response) throws Exception;
+        void response(int pageCode,String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception;
     }
-    public interface CallbackCanceled {
-        void run();
+    private interface OtherCallbacks {
+        public void onCanceled();
+        public void onDefaultResponse(int pageCode, String response, FragmentActivity fragmentActivity, Fragment fragment) throws Exception;
+        public void noInternet(FragmentActivity fragmentActivity, Fragment fragment);
     }
-    public interface CallbackNoInternet {
-        void noInternet();
+    public static abstract class OtherOptionalCallback implements OtherCallbacks{
+        @Override
+        public void onCanceled() {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public void onDefaultResponse(int pageCode, String response, FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void noInternet(FragmentActivity fragmentActivity, Fragment fragment) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     public static boolean debug = true;
@@ -48,39 +59,18 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
     private String stringResponse;
 
     private SparseArrayCompat<CallbackResponse> listeners;
-    private CallbackResponse defaultListener = null;
-    private CallbackCanceled cancelListener = null;
-    private CallbackNoInternet noInternetListener = null;
+    private OtherOptionalCallback otherOptionalCallbacks = null;
     private LoaderListener<Boolean> usersLoaderListener = null;
 
-    private LazyBaseRequest request;
+    private LazyRequest request;
 
     public RightBaseLazyLoader(FragmentActivity fragmentActivity, int loaderId) {
         super(fragmentActivity, loaderId);
         this.listeners = new SparseArrayCompat<>();
-
         super.setLoaderListener(this);
     }
 
-    public void setMessageUnsupportedResponse(String messageUnsupportedResponse) {
-        this.messageUnsupportedResponse = messageUnsupportedResponse;
-    }
-
-    public void setMessageErrorProceedResponse(String messageErrorProceedResponse) {
-        this.messageErrorProceedResponse = messageErrorProceedResponse;
-    }
-
-    public void setMessageNoInternet(String messageNoInternet) {
-        this.messageNoInternet = messageNoInternet;
-    }
-
-    private void log(String log){
-        if(debug) {
-            Log.i(TAG + " " + request.getClass().getSimpleName(), log);
-        }
-    }
-
-    public RightBaseLazyLoader setRequest(LazyBaseRequest request){
+    public RightBaseLazyLoader setRequest(LazyRequest request){
         this.request = request;
         return this;
     }
@@ -90,52 +80,40 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         return this;
     }
 
-    public RightBaseLazyLoader setDefaultResponseListener(CallbackResponse defaultListener) {
-        this.defaultListener = defaultListener;
+    public RightBaseLazyLoader setOtherListener(OtherOptionalCallback otherOptionalCallbacks){
+        this.otherOptionalCallbacks = otherOptionalCallbacks;
         return this;
     }
 
-    public RightBaseLazyLoader setOnCancelListener(CallbackCanceled cancelListener){
-        this.cancelListener = cancelListener;
-        return this;
-    }
-
-    public void setNoInternetListener(CallbackNoInternet noInternetListener) {
-        this.noInternetListener = noInternetListener;
-    }
-
-    public HttpResponse buildResponse(LazyBaseRequest request) throws Exception
-    {
-        Header header = null;
-        if(request instanceof AddHeaderToLazyRequest) {
-            header = ((AddHeaderToLazyRequest) request).getHeader();
-        }
-
+    private HttpResponse buildResponse(LazyRequest request) throws Exception{
         BasicRightRequest brr = new BasicRightRequest();
-        if(request instanceof AddPostJsonToLazyRequest){ // POST JSON
-            String json = ((AddPostJsonToLazyRequest) request).getPostJson();
+
+        Header header = request.getHeader();
+        String json = request.getPostJson();
+        String url = request.getUrl();
+
+        if(json != null){ // POST JSON
             log("POST JSON:" + json);
             return (header == null)?
-                    brr.postHttpResponse(request.getUrl(), json)
+                    brr.postHttpResponse(url,json)
                     :
-                    brr.postHttpResponse(request.getUrl(),header,json);
+                    brr.postHttpResponse(url,header,json);
 
         }else if(request instanceof AddMultipartEntityBuilderToLazyRequest) { // POST FORM
             MultipartEntityBuilder builder = ((AddMultipartEntityBuilderToLazyRequest) request).getBuilder();
             HttpEntity entity = builder.build();
             log("POST FORM:" + toString(entity));
             return (header == null)?
-                    brr.postHttpResponse(request.getUrl(), builder.build())
+                    brr.postHttpResponse(url, builder.build())
                     :
-                    brr.postHttpResponse(request.getUrl(),header,entity);
-
-        }else{ // GET
-            log("GET");
-            return (header == null)?
-                    brr.getHttpResponse(request.getUrl())
-                    :
-                    brr.getHttpResponse(request.getUrl(),header);
+                    brr.postHttpResponse(url, header, entity);
         }
+
+        log("GET");
+        return (header == null)?
+                brr.getHttpResponse(url)
+                :
+                brr.getHttpResponse(url,header);
     }
 
     private static String toString(HttpEntity entity) throws IOException {
@@ -147,9 +125,9 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
     @Override
     public Boolean loadInBackground(){
         try {
-            HttpResponse response = (request instanceof LazyCustomRequest)
+            HttpResponse response = request.getCustomResponse() != null
                     ?
-                    ((LazyCustomRequest)request).getResponse()
+                    request.getCustomResponse()
                     :
                     buildResponse(request);
 
@@ -181,40 +159,56 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
 
         // NO INTERNET
         if(statusCodeResponse == NO_INTERNET) {
-            if (noInternetListener == null) {
-                Toast.makeText(getContext(), messageNoInternet, Toast.LENGTH_LONG).show();
-            } else {
-                noInternetListener.noInternet();
-            }
-        }else {
-            // USERS LISTENERS
-            if (listeners.get(statusCodeResponse) != null) {
+            if (otherOptionalCallbacks != null) {
                 try {
-                    listeners.get(statusCodeResponse).response(statusCodeResponse, stringResponse);
-                } catch (Exception e) {
-                    Toast.makeText(getContext(), messageErrorProceedResponse + " (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
+                    otherOptionalCallbacks.noInternet(fragmentActivity,fragment);
+                    return;
+                }catch (UnsupportedOperationException e){
+                    log(".noInternet(fragmentActivity,fragment) is not override");
                 }
-                // DEFAULT LISTENER
+            }
+            Toast.makeText(getContext(), messageNoInternet, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // STATUS CODE LISTENER
+        try {
+            if (listeners.get(statusCodeResponse) != null) {
+                listeners.get(statusCodeResponse).response(statusCodeResponse, stringResponse, fragmentActivity, fragment);
             } else {
-                if (defaultListener == null) {
-                    Toast.makeText(getContext(), messageUnsupportedResponse +  " (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
-                } else {
+                if (otherOptionalCallbacks != null) {
                     try {
-                        defaultListener.response(statusCodeResponse, stringResponse);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        otherOptionalCallbacks.onDefaultResponse(statusCodeResponse, stringResponse, fragmentActivity, fragment);
+                        return;
+                    }catch (UnsupportedOperationException e){
+                        log(".onDefaultResponse() is not override");
                     }
                 }
+                Toast.makeText(getContext(), messageUnsupportedResponse + " (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
+                return;
             }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(), messageErrorProceedResponse + " (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
     public void onCancelLoad() {
         cancelLoad();
-        if(cancelListener != null){
-            cancelListener.run();
+        if(otherOptionalCallbacks != null){
+            try {
+                otherOptionalCallbacks.onCanceled();
+            }catch (UnsupportedOperationException e){
+                log(".onCanceled() is not override");
+            }
+        }
+    }
+
+    private void log(String log){
+        if(debug) {
+            Log.i(TAG + " " + request.getClass().getSimpleName(), log);
         }
     }
 }
