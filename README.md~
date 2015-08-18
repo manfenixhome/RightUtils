@@ -424,10 +424,7 @@ Use `Lazy` interfaces to build query
                     @Override
                     public void response(int pageCode, String response) throws Exception {
                         SingleUserResponse data = SystemUtils.MAPPER.readValue(response,SingleUserResponse.class);
-			if(data.isValid()){
-				// DONE
-			}
-
+			// DONE
                     }
                 }).execute();
 
