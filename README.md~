@@ -320,9 +320,11 @@ protected String doInBackground(Void... params) {
 #### Usage:
 
 	new RightLoader(this,1) // this -> AppCompatActivity
-                .setRequest(new SearchUserRequest(this,email)) // instanceof LazyBaseRequest
-                .setResponseListener(HttpStatus.SC_OK, new RightBaseLazyLoader.CallbackResponse() {
-                    @Override
+		// instanceof LazyBaseRequest
+	        .setRequest(new SearchUserRequest(this,email))
+
+	        .setResponseListener(HttpStatus.SC_OK,new RightBaseLazyLoader.CallbackResponse(){
+	            @Override
                     public void response(int pageCode, String response) throws Exception {
                         // TA DA, do something
 			// fort example you wold parce data this way
@@ -371,6 +373,26 @@ Use `Lazy` interfaces to build query
 		    .put("email", email)
 		);
 		return json.toString();
+	    }
+	}
+
+##### Custom Example:
+	public class RewardsRequest implements LazyCustomRequest {
+	    private String secureKey;
+
+	    public RewardsRequest(String secureKey) {
+		this.secureKey = secureKey;
+	    }
+
+	    @Override
+	    public HttpResponse getResponse() throws Exception {
+		BasicRightRequest brr = new BasicRightRequest();
+		return brr.getHttpResponse(getUrl(),new BasicHeader("secureParam", secureKey)));
+	    }
+
+	    @Override
+	    public String getUrl() {
+		return "http:rewards.com/get";
 	    }
 	}
 
@@ -424,7 +446,10 @@ Use `Lazy` interfaces to build query
                     @Override
                     public void response(int pageCode, String response) throws Exception {
                         SingleUserResponse data = SystemUtils.MAPPER.readValue(response,SingleUserResponse.class);
-			// DONE
+			if(data.isValid()){
+				// DONE
+			}
+
                     }
                 }).execute();
 
