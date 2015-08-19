@@ -45,11 +45,13 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         }
         @Override
         public void onDefaultResponse(int pageCode, String response, FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+            // method is not implemented so let's know it
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void noInternet(FragmentActivity fragmentActivity, Fragment fragment) {
+            // method is not implemented so let's know it
             throw new UnsupportedOperationException();
         }
     }
@@ -94,19 +96,15 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
 
         if(json != null){ // POST JSON
             log("POST JSON:" + json);
-            return (header == null)?
-                    brr.postHttpResponse(url,json)
-                    :
-                    brr.postHttpResponse(url,header,json);
+            return (header == null)?brr.postHttpResponse(url,json):brr.postHttpResponse(url,header,json);
 
         }else if(request instanceof AddMultipartEntityBuilderToLazyRequest) { // POST FORM
+
             MultipartEntityBuilder builder = ((AddMultipartEntityBuilderToLazyRequest) request).getBuilder();
             HttpEntity entity = builder.build();
+
             log("POST FORM:" + toString(entity));
-            return (header == null)?
-                    brr.postHttpResponse(url, builder.build())
-                    :
-                    brr.postHttpResponse(url, header, entity);
+            return (header == null)?brr.postHttpResponse(url, entity):brr.postHttpResponse(url, header, entity);
         }
 
         log("GET");
@@ -125,17 +123,20 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
     @Override
     public Boolean loadInBackground(){
         try {
-            HttpResponse response = request.getCustomResponse() != null
-                    ?
-                    request.getCustomResponse()
-                    :
-                    buildResponse(request);
-
             log("URL:" + request.getUrl());
+
+            HttpResponse response = request.getCustomResponse();    // custom response
+            if(response == null){
+                response = buildResponse(request);                  // build GET/POST response
+            }else{
+                log("Custom response");
+            }
+
             statusCodeResponse = response.getStatusLine().getStatusCode();
             log("PAGE CODE:" + String.valueOf(statusCodeResponse));
             stringResponse = EntityUtils.toString(response.getEntity());
             log("BODY:" + stringResponse);
+            //System.out.println("BODY:" + stringResponse);
             if (statusCodeResponse == HttpStatus.SC_OK) {
                 return true;
             }
