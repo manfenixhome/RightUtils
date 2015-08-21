@@ -14,6 +14,8 @@ public abstract class CacheUtils {
 
 	private static final String TAG = CacheUtils.class.getSimpleName();
 
+	public static boolean debug = false;
+
 	public interface CallBack<T> {
 		public boolean run(T cache);
 	}
@@ -42,7 +44,9 @@ public abstract class CacheUtils {
 		}
 
 		if(callback != null){
+			log(context,"Cache Read: " + cache.toString());
 			if(callback.run(cache)){
+				log(context,"Cache Write: " + cache.toString());
                 try {
                     sharedPreferences.edit().remove(type.getSimpleName()).commit();
                     sharedPreferences.edit().putString(type.getSimpleName(), mapper.writeValueAsString(cache)).commit();
@@ -50,6 +54,12 @@ public abstract class CacheUtils {
                     Log.e(TAG, "save CACHE", e);
                 }
             }
+		}
+	}
+
+	private static void log(Context context,String log){
+		if(debug) {
+			Log.i(TAG + " " + context.getClass().getSimpleName(), log);
 		}
 	}
 

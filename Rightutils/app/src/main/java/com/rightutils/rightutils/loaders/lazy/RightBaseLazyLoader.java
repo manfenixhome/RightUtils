@@ -10,7 +10,13 @@ import com.rightutils.rightutils.loaders.LoaderListener;
 import com.rightutils.rightutils.loaders.lazy.request.AddMultipartEntityBuilderToLazyRequest;
 import com.rightutils.rightutils.loaders.lazy.request.LazyRequest;
 import com.rightutils.rightutils.net.BasicRightRequest;
+
+import org.codehaus.jackson.map.ObjectMapper;
+
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
@@ -30,22 +36,17 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
             messageErrorProceedResponse = "Error occurred! Couldn't proceed servers response",
             messageUnsupportedResponse = "Server sent unsupported response";
 
-    public interface CallbackResponse {
-        void response(int pageCode,String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception;
+    public interface CallbackResponse<T> {
+        void response(int pageCode,T response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception;
     }
-    private interface OtherCallbacks {
+
+    private interface OtherCallbacks{
         public void onCanceled();
-        public void onDefaultResponse(int pageCode, String response, FragmentActivity fragmentActivity, Fragment fragment) throws Exception;
         public void noInternet(FragmentActivity fragmentActivity, Fragment fragment);
     }
     public static abstract class OtherOptionalCallback implements OtherCallbacks{
         @Override
         public void onCanceled() {
-            throw new UnsupportedOperationException();
-        }
-        @Override
-        public void onDefaultResponse(int pageCode, String response, FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
-            // method is not implemented so let's know it
             throw new UnsupportedOperationException();
         }
 
@@ -56,19 +57,22 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         }
     }
 
+    public ObjectMapper mapper;
     public static boolean debug = true;
     private int statusCodeResponse = NO_INTERNET;
     private String stringResponse;
 
     private SparseArrayCompat<CallbackResponse> listeners;
+    private CallbackResponse defaultListener;
     private OtherOptionalCallback otherOptionalCallbacks = null;
     private LoaderListener<Boolean> usersLoaderListener = null;
 
     private LazyRequest request;
 
-    public RightBaseLazyLoader(FragmentActivity fragmentActivity, int loaderId) {
+    public RightBaseLazyLoader(FragmentActivity fragmentActivity, int loaderId,ObjectMapper mapper) {
         super(fragmentActivity, loaderId);
         this.listeners = new SparseArrayCompat<>();
+        this.mapper = mapper;
         super.setLoaderListener(this);
     }
 
@@ -77,10 +81,16 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         return this;
     }
 
-    public RightBaseLazyLoader setResponseListener(int page, CallbackResponse listener){
+    public <T> RightBaseLazyLoader setResponseListener(int page, CallbackResponse<T> listener){
         listeners.put(page, listener);
         return this;
     }
+
+    public <T> RightBaseLazyLoader setResponseListener(CallbackResponse<T> listener){
+        defaultListener = listener;
+        return this;
+    }
+
 
     public RightBaseLazyLoader setOtherListener(OtherOptionalCallback otherOptionalCallbacks){
         this.otherOptionalCallbacks = otherOptionalCallbacks;
@@ -108,10 +118,7 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         }
 
         log("GET");
-        return (header == null)?
-                brr.getHttpResponse(url)
-                :
-                brr.getHttpResponse(url,header);
+        return (header == null)?brr.getHttpResponse(url):brr.getHttpResponse(url,header);
     }
 
     private static String toString(HttpEntity entity) throws IOException {
@@ -125,9 +132,9 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         try {
             log("URL:" + request.getUrl());
 
-            HttpResponse response = request.getCustomResponse();    // custom response
+            HttpResponse response = request.getCustomResponse();
             if(response == null){
-                response = buildResponse(request);                  // build GET/POST response
+                response = buildResponse(request);
             }else{
                 log("Custom response");
             }
@@ -175,15 +182,14 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
         // STATUS CODE LISTENER
         try {
             if (listeners.get(statusCodeResponse) != null) {
-                listeners.get(statusCodeResponse).response(statusCodeResponse, stringResponse, fragmentActivity, fragment);
+                log("proceed response (" + statusCodeResponse + ")");
+                CallbackResponse cb = listeners.get(statusCodeResponse);
+                proceedCallback(cb,fragmentActivity,fragment);
             } else {
-                if (otherOptionalCallbacks != null) {
-                    try {
-                        otherOptionalCallbacks.onDefaultResponse(statusCodeResponse, stringResponse, fragmentActivity, fragment);
-                        return;
-                    }catch (UnsupportedOperationException e){
-                        log(".onDefaultResponse() is not override");
-                    }
+                if (defaultListener != null) {
+                    log("proceed other response");
+                    proceedCallback(defaultListener,fragmentActivity,fragment);
+                    return;
                 }
                 Toast.makeText(getContext(), messageUnsupportedResponse + " (" + statusCodeResponse + ")", Toast.LENGTH_LONG).show();
                 return;
@@ -205,6 +211,22 @@ abstract public class RightBaseLazyLoader extends BaseLoader<Boolean> implements
                 log(".onCanceled() is not override");
             }
         }
+    }
+
+    public void proceedCallback(CallbackResponse cb,FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+        for(Type genericInterface : cb.getClass().getGenericInterfaces()){
+            for (Type genericType : ((ParameterizedType)genericInterface).getActualTypeArguments()) {
+                if(genericType == String.class){
+                    cb.response(statusCodeResponse, stringResponse, fragmentActivity, fragment);
+                    return;
+                }else{
+                    log("Let's parce "  + genericType.toString());
+                    cb.response(statusCodeResponse, mapper.readValue(stringResponse, (Class<?>) genericType), fragmentActivity, fragment);
+                    return;
+                }
+            }
+        }
+        throw new Exception("WARNING: WE COULDN'T RUN YOUR CALLBACK");
     }
 
     private void log(String log){
