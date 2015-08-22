@@ -303,173 +303,201 @@ protected String doInBackground(Void... params) {
 # RightBaseLazyLoader
 
 #### Set Up:
+
 	public class RightLoader extends RightBaseLazyLoader{
+		public RightLoader(FragmentActivity fragmentActivity, int loaderId) {
+			super(fragmentActivity, loaderId,SystemUtils.MAPPER);
 
-	    public RightLoader(FragmentActivity fragmentActivity, int loaderId) {
-		super(fragmentActivity, loaderId);
+			// default setup
+			setResponseListener(HttpStatus.SC_FORBIDDEN, new CallbackResponse<String>() {
+				@Override
+				public void response(int pageCode, String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
 
-		setResponseListener(HttpStatus.SC_FORBIDDEN, new CallbackResponse() {
-		    @Override
-		    public void response(int pageCode, String response) throws Exception {
-			// do something if response HttpStatus.SC_FORBIDDEN
-		    }
-		});
-	    }
+				}
+			});
+			setResponseListener(HttpStatus.SC_BAD_REQUEST, new CallbackResponse<String>() {
+				@Override
+				public void response(int pageCode, String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+
+				}
+			});
+		}
 	}
-
+	
 #### Usage:
 
-	new RightLoader(this,1) // this -> AppCompatActivity
-		// instanceof LazyBaseRequest
-	        .setRequest(new SearchUserRequest(this,email))
-
-	        .setResponseListener(HttpStatus.SC_OK,new RightBaseLazyLoader.CallbackResponse(){
-	            @Override
-                    public void response(int pageCode, String response) throws Exception {
-                        // TA DA, do something
-			// fort example you wold parce data this way
-			SingleUserResponse data = SystemUtils.MAPPER.readValue(response, SingleUserResponse.class);
-                        
-                    }
-                })
-                .execute();
-
-#### Good practice:
-
-Use `Lazy` interfaces to build query
-	* `AddMultipartEntityBuilderToLazyRequest` - post form request
-	* `LazyBaseRequest` - basic get request
-	* `AddHeaderToLazyRequest` - add custom Head to request
-	* `AddPostJsonToLazyRequest` - post json body
-	* `LazyCustomRequest` - create custom request
-
+	new RightLoader(this,SystemUtils.LOADER_FRIENDS).setRequest(new GetFriendsRequest(this))
+		.setResponseListener(HttpStatus.SC_OK, new RightBaseLazyLoader.CallbackResponse<String>() {
+			@Override
+			public void response(int pageCode, String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+				// success
+				}
+			}).execute();
 ##### Simple GET Example:
 
-	public class TermsAndConditionsRequest implements LazyBaseRequest {
-	    @Override
-	    public String getUrl() {
-		return "http://google.com/terms-and-conditions";
-	    }
+	public class GetFriendsRequest extends LazyRequest {
+		private Context context;
+		private Cache cache;
+
+		public GetFriendsRequest(Context context) {
+			this.context = context;
+		}
+
+		@Override
+		public Header getHeader() {
+			SystemUtils.getCache(context, new CacheUtils.CallBack<Cache>() {
+				@Override
+				public boolean run(Cache cache) {
+					GetFriendsRequest.this.cache = cache;
+					return false;
+			    	}
+			});
+			return new BasicHeader(SystemUtils.APIKEY_PARAM, cache.getAuthToken());
+		}
+
+		@Override
+		public String getUrl() {
+			return SystemUtils.API_URL_FRIENDS;
+		}
+
 	}
-
 ##### Simple POST Example:
+	public class CreateReminderRequest extends LazyRequest {
+		private Cache cache;
+		private ImportantDate importantDate;
 
-	public class ResetPasswordRequest implements LazyBaseRequest, AddPostJsonToLazyRequest {
-	    private String email;
+		public CreateReminderRequest(Cache cache, ImportantDate importantDate) {
+			this.cache = cache;
+			this.importantDate = importantDate;
+		}
 
-	    public ResetPasswordRequest(String email) {
-		this.email = email;
-	    }
+		@Override
+		public String getPostJson() throws JSONException {
+			JSONObject jsonPOst = new JSONObject();
+			jsonPOst.put("reminder",new JSONObject().put("date", importantDate.getStart()));
+			return jsonPOst.toString();
+		}
 
-	    @Override
-	    public String getUrl() {
-		return SystemUtils.API_URL_RESET_PASSWORD;
-	    }
+		@Override
+		public String getUrl() {
+			return String.format(SystemUtils.API_URL_POST_REMINDER,importantDate.getId());
+		}
 
-	    @Override
-	    public String getPostJson() throws JSONException {
-		JSONObject json = new JSONObject();
-		json.put("user",new JSONObject()
-		    .put("email", email)
-		);
-		return json.toString();
-	    }
+		@Override
+		public Header getHeader() {
+			return new BasicHeader(SystemUtils.APIKEY_PARAM, cache.getAuthToken());
+		}
 	}
 
 ##### Custom Example:
-	public class RewardsRequest implements LazyCustomRequest {
-	    private String secureKey;
+	public class DeleteReminderRrequest extends LazyRequest {
+		private Cache cache;
+		private ImportantDate importantDate;
 
-	    public RewardsRequest(String secureKey) {
-		this.secureKey = secureKey;
-	    }
+		public DeleteReminderRrequest(Cache cache, ImportantDate importantDate) {
+			this.cache = cache;
+			this.importantDate = importantDate;
+		}
 
-	    @Override
-	    public HttpResponse getResponse() throws Exception {
-		BasicRightRequest brr = new BasicRightRequest();
-		return brr.getHttpResponse(getUrl(),new BasicHeader("secureParam", secureKey)));
-	    }
+		@Override
+		public String getUrl() {
+			return String.format(SystemUtils.API_URL_DELETE_REMINDER,importantDate.getId());
+		}
 
-	    @Override
-	    public String getUrl() {
-		return "http:rewards.com/get";
-	    }
+		@Override
+		public HttpResponse getCustomResponse() throws Exception {
+			BasicRightRequest brr = new BasicRightRequest();
+			return brr.deleteHttpResponse(getUrl(),new BasicHeader(SystemUtils.APIKEY_PARAM, cache.getAuthToken()));
+		}
 	}
-
 ##### Secure GET Example:
-	public class SearchUserRequest implements LazyBaseRequest,AddHeaderToLazyRequest{
-	    private String secureKey;
+	public class SearchUserRequest extends LazyRequest {
+		private Context context;
+		private Cache cache;
+		private String identity;
 
-	    public SearchUserRequest(String secureKey) {
-		this.secureKey = secureKey;
-	    }
+		public SearchUserRequest(Context context,String identity) {
+			this.identity = identity;
+			this.context = context;
+		}
 
-	    @Override
-	    public String getUrl() {
-		return "http://user.com/find/1";
-	    }
+		@Override
+		public String getUrl() {
+			return String.format(SystemUtils.API_URL_SEARCH_BYEMAILID,identity);
+		}
 
-	    @Override
-	    public Header getHeader() {
-		return new BasicHeader("secureParam", secureKey);
-	    }
+		@Override
+		public Header getHeader() {
+			SystemUtils.getCache(context, new CacheUtils.CallBack<Cache>() {
+				@Override
+				public boolean run(Cache cache) {
+					SearchUserRequest.this.cache = cache;
+					return false;
+				}
+			});
+			return new BasicHeader(SystemUtils.APIKEY_PARAM, cache.getAuthToken());
+		}
 	}
 	 
 ##### Complicated Example:
-	public class UpdateProfileRequest extends AddMultipartEntityBuilderToLazyRequest implements AddHeaderToLazyRequest{
-	    private String secureKey;
+	
+	public class UpdateProfileRequest extends AddMultipartEntityBuilderToLazyRequest {
+		private Context context;
+		private Cache cache;
 
-	    public UpdateProfileRequest(String secureKey;) {
-		this.secureKey = secureKey;
-	    }
+		public UpdateProfileRequest(Context context,Cache cache) {
+			super(context);
+			this.context = context;
+			this.cache = cache;
+		}
 
-	    @Override
-	    public String getUrl() {
-		return "http://user.com/1";
-	    }
+		@Override
+		public String getUrl() {
+			return SystemUtils.API_URL_UPDATE_PROFILE;
+		}
 
-	    @Override
-	    public Header getHeader() {
-		return new BasicHeader("secureParam", secureKey);
-	    }
+		@Override
+		public Header getHeader() {
+			return new BasicHeader(SystemUtils.APIKEY_PARAM, cache.getAuthToken());
+		}
 	}
 
-	UpdateProfileRequest request = new UpdateProfileRequest("secret key");
+	UpdateProfileRequest request = new UpdateProfileRequest(this);
 	request.addPart("user[firstName]",edtFirstName.getText().toString());
-        if(imageFile != null) {
-		request.addPart("picture",imageFile);
-        }
+	request.addPart("user[lastName]",edtSureName.getText().toString());
+	request.addPart("user[gender]",Integer.toString(gender));
+	request.addPart("user[birthday]",DateUtils.calendarToJson(birthday));
+	if(profiileImageURI != null) {
+		request.addPart("picture",profiileImageURI);
+	}
 
-	new RightLoader(this,2)
-                .setRequest(request)
-                .setResponseListener(HttpStatus.SC_OK, new RightBaseLazyLoader.CallbackResponse() {
-                    @Override
-                    public void response(int pageCode, String response) throws Exception {
-                        SingleUserResponse data = SystemUtils.MAPPER.readValue(response,SingleUserResponse.class);
-			if(data.isValid()){
-				// DONE
+	new RightLoader(this,SystemUtils.LOADER_UPDATE_PROFILE)
+		.setRequest(request)
+		.setResponseListener(HttpStatus.SC_OK, new RightBaseLazyLoader.CallbackResponse<String>() {
+			@Override
+			public void response(int pageCode, String response,FragmentActivity fragmentActivity, Fragment fragment) throws Exception {
+		                // success
 			}
+		}).execute();
 
-                    }
-                }).execute();
-
+	
 
 ##### Friendly response:
 	public class SingleUserResponse implements RightResponse {
-	    public User user;
+		public User user;
 
-	    public SingleUserResponse() {
-	    }
+		public SingleUserResponse() {
+		}
 
-	    @Override
-	    public boolean isValid() {
-		return user != null;
-	    }
+		@Override
+		public boolean isValid() {
+			return user != null;
+		}
 
-	    @Override
-	    public String toString() {
-		return "SingleUserResponse{" +
-		        "user=" + user +
-		        '}';
-	    }
+		@Override
+		public String toString() {
+			return "SingleUserResponse{" +
+			"user=" + user +
+			'}';
+		}
 	}
