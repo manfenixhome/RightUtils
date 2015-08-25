@@ -6,6 +6,11 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 
 import com.rightutils.example.R;
+import com.rightutils.example.entities.Company;
+import com.rightutils.rightutils.utils.CacheUtils;
+import com.rightutils.rightutils.utils.RightUtils;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Created by Anton Maniskevich on 3/31/15.
@@ -22,6 +27,20 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		findViewById(R.id.btn_right_refresh_listview).setOnClickListener(this);
 		findViewById(R.id.btn_right_refresh_recyclerview).setOnClickListener(this);
 		findViewById(R.id.btn_right_refresh_viewpager).setOnClickListener(this);
+
+		howToLogWorkWithCache();
+
+	}
+
+	private void howToLogWorkWithCache() {
+		CacheUtils.debug = true;
+		CacheUtils.getCache(new ObjectMapper(), Company.class, this, new CacheUtils.CallBack<Company>() {
+			@Override
+			public boolean run(Company cache) {
+				cache.setName("New company name");
+				return true;
+			}
+		});
 	}
 
 	@Override
