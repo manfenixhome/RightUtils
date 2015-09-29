@@ -4,6 +4,7 @@ import android.test.AndroidTestCase;
 
 import com.rightutils.rightutils.collections.RightList;
 import com.rightutils.rightutils.entities.Company;
+import com.rightutils.rightutils.entities.TestTable;
 import com.rightutils.rightutils.entities.Worker;
 
 /**
@@ -34,6 +35,20 @@ public class DbTest extends AndroidTestCase {
 
 		assertEquals(1, dbCompanies.size());
 		assertEquals(company, dbCompanies.getFirst());
+	}
+
+	public void testListMapping() throws Exception {
+		RightList<Worker> workers = new RightList<>();
+		Company company = new Company(100, "Company name");
+		workers.add(new Worker(1, 2, "User", true, company));
+		workers.add(new Worker(3, 4, "User", false, company));
+		workers.add(new Worker(5, 6, "User", true, company));
+		TestTable testTable = new TestTable(workers);
+		dbUtils.add(testTable);
+		RightList<TestTable> targetList = dbUtils.getAll(TestTable.class);
+		assertTrue(!targetList.isEmpty());
+		assertTrue(targetList.getFirst().getWorkers().getFirst() instanceof Worker);
+		assertEquals(targetList.getFirst().getWorkers().size(), 3);
 	}
 
 	public void testAddEntityWithNullDate() throws Exception {
