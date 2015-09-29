@@ -13,11 +13,13 @@ import com.rightutils.rightutils.collections.RightList;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Date;
 
 public abstract class RightDBUtils {
@@ -225,7 +227,7 @@ public abstract class RightDBUtils {
 		return result;
 	}
 
-	private <T> void fieldMapper(T result, Cursor cursor, Field field, String columnName) {
+	private <T> void fieldMapper(T result, Cursor cursor, final Field field, String columnName) {
 		field.setAccessible(true);
 		try {
 			if (field.getType().isAssignableFrom(String.class)) {
@@ -253,7 +255,11 @@ public abstract class RightDBUtils {
 				}
 			} else if (field.isAnnotationPresent(ColumnDAO.class)) {
 				String value = cursor.getString(cursor.getColumnIndex(columnName));
-				field.set(result, value != null ? MAPPER.readValue(value, field.getType()) : null);
+				field.set(result, value != null ? MAPPER.readValue(value,new TypeReference<Object>() {
+					@Override public Type getType() {
+						return field.getGenericType();
+					}
+				}) : null);
 			} else {
 				Log.w(TAG, String.format("In class '%s' type '%s' of field '%s' not supported.", result.getClass().getSimpleName(), field.getType().toString(), field.getName()));
 			}
