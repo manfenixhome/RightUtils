@@ -18,7 +18,7 @@ public class DbTest extends AndroidTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		dbUtils = DBUtilsNew.newInstance(getContext(), "example_test.sqlite", 1);
-		assertNotNull(dbUtils.db);
+		assertNotNull(dbUtils.getSQLiteDatabase());
 	}
 
 	@Override

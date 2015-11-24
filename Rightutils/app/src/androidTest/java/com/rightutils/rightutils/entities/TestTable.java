@@ -1,8 +1,8 @@
 package com.rightutils.rightutils.entities;
 
+import com.github.andreyrage.leftdb.annotation.ColumnDAO;
+import com.github.andreyrage.leftdb.annotation.TableName;
 import com.rightutils.rightutils.collections.RightList;
-import com.rightutils.rightutils.db.ColumnDAO;
-import com.rightutils.rightutils.db.TableName;
 
 /**
  * app
