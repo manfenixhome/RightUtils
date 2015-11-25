@@ -1,0 +1,88 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.github.andreyrage'
+version = project.VERSION_NAME
+
+def siteUrl = 'https://github.com/AndreyRage/LeftDB'
+def gitUrl = 'https://github.com/AndreyRage/LeftDB.git'
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                name 'RightUtils'
+                description = 'Fork of the RightUtils'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'rage'
+                        name 'Andrey Horishniy'
+                        email 'andreyrage@horishniy.org.ua'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+def getBintrayUsername() {
+    return hasProperty('BINTRAY_USER') ? BINTRAY_USER : ""
+}
+
+def getBintrayPassword() {
+    return hasProperty('BINTRAY_KEY') ? BINTRAY_KEY : ""
+}
+
+bintray {
+    user = getBintrayUsername()
+    key = getBintrayPassword()
+    pkg {
+        repo = 'maven'
+        name = 'com.github.andreyrage.rightutils'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl
+        websiteUrl = siteUrl
+        publish = true
+        version {
+            name = project.VERSION_NAME
+            desc = 'Fork of the RightUtils'
+            released  = new Date()
+            vcsTag = project.VERSION_NAME
+        }
+    }
+    configurations = ['archives']
+}

@@ -26,7 +26,7 @@ import ch.boye.httpclientandroidlib.protocol.HTTP;
  * Created by Anton Maniskevich on 25.07.2014.
  */
 /**
- * @deprecated use {@link BasicRightRequest()} instead.
+ * @deprecated use {@link BasicRightRequest} instead.
  */
 @Deprecated
 public class RequestUtils {
