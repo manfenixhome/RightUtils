@@ -1,6 +1,6 @@
 package com.rightutils.rightutils.entities;
 
-import com.rightutils.rightutils.db.ColumnDAO;
+import com.github.andreyrage.leftdb.annotation.ColumnDAO;
 
 /**
  * Created by Anton Maniskevich on 2/23/15.
