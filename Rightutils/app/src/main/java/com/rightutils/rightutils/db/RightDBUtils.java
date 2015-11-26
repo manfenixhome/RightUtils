@@ -4,7 +4,46 @@ import com.github.andreyrage.leftdb.LeftDBUtils;
 import com.rightutils.rightutils.collections.Operation;
 import com.rightutils.rightutils.collections.RightList;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+
 public abstract class RightDBUtils extends LeftDBUtils {
+	private ObjectMapper mapper;
+
+	@Override
+	protected String serializeObject(Object object) {
+		try {
+			return getMapper().writeValueAsString(object);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	protected <T> T deserializeObject(String string, Class<T> tClass, final Type genericType) {
+		try {
+			return getMapper().readValue(string, new TypeReference<Object>() {
+				@Override public Type getType() {
+					return genericType;
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private ObjectMapper getMapper() {
+		if (mapper == null) {
+			mapper = new ObjectMapper().configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		}
+		return mapper;
+	}
 
 	public <T> RightList<T> executeQuery(String query, Class<T> type) {
 		return RightList.asRightList(super.executeQuery(query, type));
