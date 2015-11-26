@@ -64,7 +64,7 @@ public abstract class CacheUtils {
 		}
 	}
 
-	public static synchronized <T> void getCache(Gson gson, Class<T> type, Context context, CallBack<T> callback) {
+	public static synchronized <T> void getCache(Class<T> type, Gson gson, Context context, CallBack<T> callback) {
 		T cache = null;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!"".equals(sharedPreferences.getString(type.getSimpleName(), ""))) {
