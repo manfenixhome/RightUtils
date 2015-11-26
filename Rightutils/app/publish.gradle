@@ -14,31 +14,29 @@ install {
             dep -> dep.artifactId.startsWith('leftdb') }
         }
         // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                name 'RightUtils'
-                description = 'Fork of the RightUtils'
+        pom.project {
+            packaging 'aar'
+            name 'RightUtils'
+            description = 'Fork of the RightUtils'
+            url siteUrl
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers {
+                developer {
+                    id 'rage'
+                    name 'Andrey Horishniy'
+                    email 'andreyrage@horishniy.org.ua'
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
                 url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'rage'
-                        name 'Andrey Horishniy'
-                        email 'andreyrage@horishniy.org.ua'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
 
-                }
             }
         }
     }
