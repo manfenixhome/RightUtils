@@ -4,8 +4,8 @@ apply plugin: 'com.jfrog.bintray'
 group = 'com.github.andreyrage'
 version = project.VERSION_NAME
 
-def siteUrl = 'https://github.com/AndreyRage/LeftDB'
-def gitUrl = 'https://github.com/AndreyRage/LeftDB.git'
+def siteUrl = 'https://github.com/AndreyRage/RightUtils-android'
+def gitUrl = 'https://github.com/AndreyRage/RightUtils-android.git'
 
 install {
     repositories.mavenInstaller {
