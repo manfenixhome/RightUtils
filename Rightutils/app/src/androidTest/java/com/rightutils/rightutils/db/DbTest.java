@@ -62,10 +62,8 @@ public class DbTest extends AndroidTestCase {
 	}
 
 	public void testAddEntityAutoInc() throws Exception {
-		Company company = new Company("Company name");
-
-		dbUtils.add(company);
-		dbUtils.add(company);
+		dbUtils.add(new Company("Company name"));
+		dbUtils.add(new Company("Company name"));
 		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
 
 		assertEquals(2, dbCompanies.size());
