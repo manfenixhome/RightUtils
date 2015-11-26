@@ -9,9 +9,9 @@ def gitUrl = 'https://github.com/AndreyRage/LeftDB.git'
 
 install {
     repositories.mavenInstaller {
-        // This remove all dependencies from POM.xml
-        pom.whenConfigured {
-            pom -> pom.dependencies.clear()
+        // This remove all dependencies besides LeftDB from POM.xml
+        pom.whenConfigured { pom -> pom.dependencies = pom.dependencies.findAll {
+            dep -> dep.artifactId.startsWith('leftdb') }
         }
         // This generates POM.xml with proper parameters
         pom {
