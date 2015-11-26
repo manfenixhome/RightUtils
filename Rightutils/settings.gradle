@@ -1,1 +1,2 @@
-include ':app', ':example'
+include ':rightutils', ':example'
+project(':rightutils').projectDir = new File('app')

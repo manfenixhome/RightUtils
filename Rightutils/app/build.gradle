@@ -1,19 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
-apply plugin: 'signing'
-version = appversion
-group = "com.rightutils"
-
-configurations {
-	archives {
-		extendsFrom configurations.default
-	}
-}
-
-signing {
-	required { has("release") && gradle.taskGraph.hasTask("uploadArchives") }
-	sign configurations.archives
-}
 
 android {
 	compileSdkVersion 21
@@ -48,47 +33,9 @@ dependencies {
 	compile 'com.android.support:appcompat-v7:22.1.1'
 	compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
-	compile 'com.github.andreyrage:leftdb:0.4'
+	compile 'com.google.code.gson:gson:2.4'
+	compile 'com.github.andreyrage:leftdb:0.6'
 	compile 'com.android.support:support-v4:22.1.1'
 }
 
-uploadArchives {
-	configuration = configurations.archives
-	repositories.mavenDeployer {
-		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-		repository(url: sonatypeRepo) {
-			authentication(userName: sonatypeUsername,
-					password: sonatypePassword)
-		}
-
-		pom.project {
-			name 'RightUtils'
-			packaging 'aar'
-			description 'Utils for android development'
-			url repoUrl
-
-			scm {
-				url gitUrl
-				connection gitUrl
-				developerConnection gitUrl
-			}
-
-			licenses {
-				license {
-					name 'The Apache Software License, Version 2.0'
-					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-					distribution 'repo'
-				}
-			}
-
-			developers {
-				developer {
-					id 'ama'
-					name 'Anton Maniskevich'
-					email 'fenixhomepro@gmail.com'
-				}
-			}
-		}
-	}
-}
+apply from: 'publish.gradle'

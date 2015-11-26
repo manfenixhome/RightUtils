@@ -5,9 +5,16 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.github.andreyrage.leftdb.utils.Serializer;
+import com.google.gson.Gson;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 /**
+ * eKreative
  * Created by Anton Maniskevich on 12/22/14.
  */
 public abstract class CacheUtils {
@@ -17,15 +24,15 @@ public abstract class CacheUtils {
 	public static boolean debug = false;
 
 	public interface CallBack<T> {
-		public boolean run(T cache);
+		boolean run(T cache);
 	}
 
     @Deprecated
-    public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback, boolean saveCache) {
+    public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack<T> callback, boolean saveCache) {
         getCache(mapper,type,context,callback);
     }
 
-	public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack callback) {
+	public static synchronized <T> void getCache(ObjectMapper mapper, Class<T> type, Context context, CallBack<T> callback) {
 		T cache = null;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!"".equals(sharedPreferences.getString(type.getSimpleName(), ""))) {
@@ -44,9 +51,9 @@ public abstract class CacheUtils {
 		}
 
 		if(callback != null){
-			log(context,"Cache Read: " + cache.toString());
+			log(context,"Cache Read: " + cache);
 			if(callback.run(cache)){
-				log(context,"Cache Write: " + cache.toString());
+				log(context,"Cache Write: " + cache);
                 try {
                     sharedPreferences.edit().remove(type.getSimpleName()).commit();
                     sharedPreferences.edit().putString(type.getSimpleName(), mapper.writeValueAsString(cache)).commit();
@@ -55,6 +62,96 @@ public abstract class CacheUtils {
                 }
             }
 		}
+	}
+
+	public static synchronized <T> void getCache(Gson gson, Class<T> type, Context context, CallBack<T> callback) {
+		T cache = null;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		if (!"".equals(sharedPreferences.getString(type.getSimpleName(), ""))) {
+			try {
+				cache = gson.fromJson(sharedPreferences.getString(type.getSimpleName(), ""), type);
+			} catch (Exception e) {
+				Log.e(TAG, "get CACHE", e);
+			}
+		}
+		if (cache == null) {
+			try {
+				cache = type.newInstance();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(callback != null){
+			log(context,"Cache Read: " + cache);
+			if(callback.run(cache)){
+				log(context,"Cache Write: " + cache);
+				try {
+					sharedPreferences.edit().remove(type.getSimpleName()).apply();
+					sharedPreferences.edit().putString(type.getSimpleName(), gson.toJson(cache)).apply();
+				} catch (Exception e) {
+					Log.e(TAG, "save CACHE", e);
+				}
+			}
+		}
+	}
+
+	public static synchronized <T> void getCache(Class<T> type, Context context, CallBack<T> callback) {
+		T cache = null;
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		if (!"".equals(sharedPreferences.getString(type.getSimpleName(), ""))) {
+			try {
+				cache = deserializeObject(sharedPreferences.getString(type.getSimpleName(), ""), type);
+			} catch (Exception e) {
+				Log.e(TAG, "get CACHE", e);
+			}
+		}
+		if (cache == null) {
+			try {
+				cache = type.newInstance();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		if(callback != null){
+			log(context,"Cache Read: " + cache);
+			if(callback.run(cache)){
+				log(context,"Cache Write: " + cache);
+				try {
+					sharedPreferences.edit().remove(type.getSimpleName()).commit();
+					sharedPreferences.edit().putString(type.getSimpleName(), serializeObject(cache)).commit();
+				} catch (Exception e) {
+					Log.e(TAG, "save CACHE", e);
+				}
+			}
+		}
+	}
+
+	protected static String serializeObject(Object object) {
+		try {
+			return Arrays.toString(Serializer.serialize(object));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	protected static <T> T deserializeObject(String string, Class<T> tClass) {
+		String[] byteValues = string.substring(1, string.length() - 1).split(",");
+		byte[] bytes = new byte[byteValues.length];
+		for (int i=0, len=bytes.length; i<len; i++) {
+			bytes[i] = Byte.parseByte(byteValues[i].trim());
+		}
+
+		try {
+			Object o = Serializer.deserialize(bytes);
+			if (o != null) {
+				return tClass.cast(o);
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private static void log(Context context,String log){
