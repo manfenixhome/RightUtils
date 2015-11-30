@@ -34,7 +34,7 @@ dependencies {
 	compile 'com.android.support:support-v4:22.1.1'
 	compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
-	compile 'com.github.andreyrage:leftdb:0.10'
+	compile 'com.github.andreyrage:leftdb:1.0-beta1'
 }
 
 apply from: 'publish.gradle'

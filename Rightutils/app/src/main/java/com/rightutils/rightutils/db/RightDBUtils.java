@@ -11,6 +11,10 @@ import org.codehaus.jackson.type.TypeReference;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+/**
+ * eKreative
+ * Created by rage on 11/30/15.
+ */
 public abstract class RightDBUtils extends LeftDBUtils {
 	private ObjectMapper mapper;
 
