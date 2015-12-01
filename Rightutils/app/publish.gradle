@@ -4,37 +4,39 @@ apply plugin: 'com.jfrog.bintray'
 group = 'com.github.andreyrage'
 version = project.VERSION_NAME
 
-def siteUrl = 'https://github.com/AndreyRage/LeftDB'
-def gitUrl = 'https://github.com/AndreyRage/LeftDB.git'
+def siteUrl = 'https://github.com/AndreyRage/RightUtils-android'
+def gitUrl = 'https://github.com/AndreyRage/RightUtils-android.git'
 
 install {
     repositories.mavenInstaller {
+        // This remove all dependencies besides LeftDB from POM.xml
+        pom.whenConfigured { pom -> pom.dependencies = pom.dependencies.findAll {
+            dep -> dep.artifactId.startsWith('leftdb') }
+        }
         // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                name 'RightUtils'
-                description = 'Fork of the RightUtils'
+        pom.project {
+            packaging 'aar'
+            name 'RightUtils'
+            description = 'Fork of the RightUtils'
+            url siteUrl
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers {
+                developer {
+                    id 'rage'
+                    name 'Andrey Horishniy'
+                    email 'andreyrage@horishniy.org.ua'
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
                 url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'rage'
-                        name 'Andrey Horishniy'
-                        email 'andreyrage@horishniy.org.ua'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
 
-                }
             }
         }
     }
