@@ -1,7 +1,8 @@
 package com.rightutils.rightutils.db;
 
+import android.support.annotation.NonNull;
+
 import com.github.andreyrage.leftdb.LeftDBUtils;
-import com.rightutils.rightutils.collections.Operation;
 import com.rightutils.rightutils.collections.RightList;
 
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -49,28 +50,23 @@ public abstract class RightDBUtils extends LeftDBUtils {
 		return mapper;
 	}
 
-	public <T> RightList<T> executeQuery(String query, Class<T> type) {
+	@NonNull
+	public <T> RightList<T> executeQuery(@NonNull String query, @NonNull Class<T> type) {
 		return RightList.asRightList(super.executeQuery(query, type));
 	}
 
-	public <T> RightList<T> getAll(Class<T> type) {
+	@NonNull
+	public <T> RightList<T> getAll(@NonNull Class<T> type) {
 		return RightList.asRightList(super.getAll(type));
 	}
 
-	public <T> RightList<T> getAllLimited(Class<T> type, long limit) {
+	@NonNull
+	public <T> RightList<T> getAllLimited(@NonNull Class<T> type, long limit) {
 		return RightList.asRightList(super.getAllLimited(type, limit));
 	}
 
-	public <T> RightList<T> getAllWhere(String where, Class<T> type) {
+	@NonNull
+	public <T> RightList<T> getAllWhere(@NonNull String where, @NonNull Class<T> type) {
 		return RightList.asRightList(super.getAllWhere(where, type));
-	}
-
-	public <T> void add(RightList<T> elements) {
-		elements.foreach(new Operation<T>() {
-			@Override
-			public void execute(T value) {
-				add(value);
-			}
-		});
 	}
 }
