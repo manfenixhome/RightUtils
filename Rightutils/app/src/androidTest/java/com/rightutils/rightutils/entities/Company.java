@@ -1,7 +1,7 @@
 package com.rightutils.rightutils.entities;
 
-import com.rightutils.rightutils.db.ColumnAutoInc;
-import com.rightutils.rightutils.db.TableName;
+import com.github.andreyrage.leftdb.annotation.ColumnAutoInc;
+import com.github.andreyrage.leftdb.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;

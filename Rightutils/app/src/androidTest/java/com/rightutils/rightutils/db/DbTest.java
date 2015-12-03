@@ -18,7 +18,7 @@ public class DbTest extends AndroidTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		dbUtils = DBUtilsNew.newInstance(getContext(), "example_test.sqlite", 1);
-		assertNotNull(dbUtils.db);
+		//assertNotNull(dbUtils.db);
 	}
 
 	@Override
@@ -62,10 +62,8 @@ public class DbTest extends AndroidTestCase {
 	}
 
 	public void testAddEntityAutoInc() throws Exception {
-		Company company = new Company("Company name");
-
-		dbUtils.add(company);
-		dbUtils.add(company);
+		dbUtils.add(new Company("Company name"));
+		dbUtils.add(new Company("Company name"));
 		RightList<Company> dbCompanies = dbUtils.getAll(Company.class);
 
 		assertEquals(2, dbCompanies.size());
